@@ -90,6 +90,53 @@
 - Make external API requests
 - Modify system configurations
 
+## 🚨 Error Recovery
+
+When encountering **413 error** or **Agent terminated**:
+
+1. **Switch Model**: Immediately downshift (High → Standard → Low)
+2. **Disable MCPs**: Temporarily disable ALL MCP servers
+3. **Fresh Chat**: Start new session if context > 20k tokens
+4. **Hard Reset**: Run `./antigravity_toolkit.sh full` if issue persists
+5. **HTTP Mode**: Ensure "HTTP Compatibility Mode" is set to "HTTP/1.1" in IDE Settings
+
+## 📤 Output Preferences
+
+- **Code Blocks**: Always include language identifier (```typescript, ```python)
+- **Lists**: Use bullet points for non-sequential items, numbered for steps
+- **Tables**: Use for comparisons, options, or structured data
+- **Explanations**: Be concise; explain "why" not "what"
+- **Links**: Format as markdown links `[label](url)`
+
+## 🧪 Testing Standards
+
+- Write tests before or alongside code (TDD/BDD encouraged)
+- Minimum 80% coverage for critical paths
+- Use descriptive test names: `should_returnError_when_inputIsInvalid`
+- Mock external dependencies; avoid real API calls in tests
+- Include edge cases and error scenarios
+
+## 📝 Documentation Style
+
+- **Comments**: Explain "why", not "what" — code should be self-documenting
+- **README**: Include setup instructions, usage examples, and architecture overview
+- **JSDoc/TSDoc**: Use for public APIs and complex functions
+- **Inline Comments**: Only for non-obvious logic or workarounds
+
+## 🔀 Git Conventions
+
+### Commit Messages
+- Format: `<emoji> <type>: <description>`
+- Examples: `✨ feat: add user authentication`, `🐛 fix: resolve null pointer`
+- Keep subject line under 72 characters
+- Use present tense ("add" not "added")
+
+### Branch Naming
+- `feature/description` — new features
+- `fix/description` — bug fixes
+- `refactor/description` — code improvements
+- `docs/description` — documentation updates
+
 ---
 
 # 🛸 Factory Reset Guide
