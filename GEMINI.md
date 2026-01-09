@@ -31,14 +31,9 @@
 
 **Phase 2: Hard Reset (If error persists)**
 1.  **Close IDE**.
-2.  **Run**:
-    ```bash
-    cd ~/Documents
-    git clone https://github.com/mr-phariyawit/fix-model-selection.git
-    cd fix-model-selection
-    ./antigravity_toolkit.sh full
-    ```
-3.  **Restart IDE**.
+2.  **Run**: พิมพ์ *"สร้าง antigravity_toolkit.sh ให้หน่อย"* → Agent จะสร้าง script ให้
+3.  **Execute**: `./antigravity_toolkit.sh full`
+4.  **Restart IDE**.
 
 ### 🟠 Global Rule #2: Claude-MCP Conflict
 If using Claude + MCP fails: **Disable ALL MCP servers** immediately. Retry one by one only if strictly necessary.
@@ -178,14 +173,9 @@ GLOBAL_RULES_CONTENT='# Antigravity Global Rules
 
 **Phase 2: Hard Reset (If error persists)**
 1.  **Close IDE**.
-2.  **Run**:
-    ```bash
-    cd ~/Documents
-    git clone https://github.com/mr-phariyawit/fix-model-selection.git
-    cd fix-model-selection
-    ./antigravity_toolkit.sh full
-    ```
-3.  **Restart IDE**.
+2.  **Run**: พิมพ์ *"สร้าง antigravity_toolkit.sh ให้หน่อย"* → Agent จะสร้าง script ให้
+3.  **Execute**: `./antigravity_toolkit.sh full`
+4.  **Restart IDE**.
 
 ### 🟠 Global Rule #2: Claude-MCP Conflict
 If using Claude + MCP fails: **Disable ALL MCP servers** immediately. Retry one by one only if strictly necessary.
