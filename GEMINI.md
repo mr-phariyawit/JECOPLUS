@@ -17,38 +17,7 @@
 4. **Context Hygiene**: Start fresh chats often — Agent has persistent memory across sessions.
 5. **Iterative Refinement**: Start simple, then iterate based on outputs.
 
-## 🚨 Emergency Protocols
-
-### 🔴 Rule #1: Agent Termination Protocol
-
-**Trigger**: "Agent terminated", "Model provider overload", or 413 error.
-
-**Phase 0: Immediate Checks (User)**
-1. **HTTP Mode**: Ensure **"HTTP Compatibility Mode"** is set to **"HTTP/1.1"** in IDE Settings > Network.
-2. **Resources**: Run `Developer: Open Process Explorer` and kill processes using >2GB RAM.
-
-**Phase 1: Mitigation (Agent)**
-1. **Downshift Model**: Switch models (High → Standard → Low).
-2. **Disable MCPs**: Temporarily disable **ALL** MCP servers. Critical for 413 errors.
-3. **Reduce Context**: Clear chat history or start new session if context > 20k tokens.
-
-**Phase 2: Hard Reset**
-1. **Close IDE**.
-2. **Create Toolkit**: Type *"create antigravity_toolkit.sh"* → Agent will create the script.
-3. **Execute**: `./antigravity_toolkit.sh full`
-4. **Restart IDE**.
-
-### 🟠 Rule #2: Claude-MCP Conflict
-
-If Claude + MCP fails: **Disable ALL MCP servers** immediately. Re-enable one by one only if strictly necessary.
-
-### 🟡 Rule #3: Token-Aware Context Hygiene
-
-- **File Size Limit**: NEVER read files > 500 lines or > 50KB without checking first.
-- **Pre-Check**: ALWAYS use `view_file_outline` or `du -h` before reading large files.
-- **No Log Dumping**: Pipe large outputs to files; read snippets, not full dumps.
-
-## 🛡️ Prevention Protocols
+## ️ Prevention Protocols
 
 1. **Fresh Chat Habit**: Start new chat every 30-50 messages or when switching topics.
 2. **Project Hygiene**: Ensure workspace has valid `package.json` or `.git` root.
