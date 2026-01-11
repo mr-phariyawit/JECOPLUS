@@ -1,8 +1,7 @@
-.DS_Store
-.spec-driven.md
-.antigravity_toolkit
+# Ignore everything
+*
 
-# Antigravity Memory (auto-saved artifacts)
-.memory/
-
-spec.md
+# Whitelist
+!GEMINI.md
+!README.md
+!.gitignore
