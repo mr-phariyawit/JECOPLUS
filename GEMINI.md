@@ -40,10 +40,10 @@ When encountering **413 error** or **Agent terminated**:
 # 🧬 Structural Memory Pattern
 
 ## Core Concept
-The **Self-Healing AI Agent** embeds context, rules, and memory directly into the **File Structure** rather than relying on the "Prompt". This ensures that the Agent always follows the correct standards, even after a context reset.
+The **Structural Memory Agent** embeds context, rules, and memory directly into the **File Structure** rather than relying on the "Prompt". This ensures that the Agent always follows the correct standards, even after a context reset.
 
 - **Structural Memory**: Rules are in `agent/rules/*`.
-- **Self-Healing**: If a mistake is made, update the Rule first, then the Code.
+- **Structural Correction**: If a mistake is made, update the Rule first, then the Code.
 - **Enforced Read**: You must read `agent/rules/` before starting complex tasks.
 
 ## 📂 Project Structure (Standard)
@@ -156,7 +156,7 @@ Use these commands to control the Agent's workflow efficiently.
 | `/spec [desc]` | **Create Specification** | Transforms raw idea into `spec.md` (SDD). |
 | `/spec.plan` | **Create Plan** | Generates `implementation_plan.md` from `spec.md`. |
 | `/spec.tasks` | **Create Tasks** | Generates tasks.md from plan. |
-| `/learn` | **Self-Healing** | Analyzes error → Updates `agent/rules` → Verifies fix. |
+| `/learn` | **Structural Correction** | Analyzes error → Updates `agent/rules` → Verifies fix. |
 | `/retro` | **Retrospective** | Summarizes work and saves artifacts to `.memory/`. |
 | `/help` | **Show Commands** | Lists available commands. |
 
@@ -544,4 +544,4 @@ esac
 
 ---
 
-*🛸 Antigravity Global Rules v2026.1 (Merged with Self-Healing Pattern)*
+*🛸 Antigravity Global Rules v2026.1 (Merged with Structural Memory Pattern)*
