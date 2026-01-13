@@ -362,6 +362,10 @@ These criteria define the expected behavior of the Structural Memory Agent.
 1.  **Write Tests FIRST**: Code must fail (Red) before it passes (Green).
 2.  **Minimum Coverage**: 80% for critical paths.
 3.  **Real Environments**: Real DBs over mocks (Article IX).
+4.  **Browser Verification Loop**: After every code implementation or bug fix:
+    1. Create or update relevant tests.
+    2. Run `chrome-check` (browser/Playwright tests).
+    3. If bugs are found → Fix → Re-run tests → Loop until all tests pass.
 
 ---
 
@@ -370,6 +374,18 @@ These criteria define the expected behavior of the Structural Memory Agent.
 - **Comments**: Explain "Why", not "What".
 - **README**: Setup, Usage, Architecture.
 - **Specs**: Living documentation.
+
+## 📊 Visual Communication Standards
+
+> **Rule**: You MUST use **Mermaid** diagrams to visualize ideas, workflows, and architectures whenever possible.
+
+1.  **Always Visualize**: Don't just explain with text; show it with a diagram.
+2.  **Context-Aware Diagrams**: Choose the right diagram type for the job:
+    -   **Flowchart (`graph TD`)**: Logic flows, decision trees, processes.
+    -   **Sequence (`sequenceDiagram`)**: API calls, object interactions, protocols.
+    -   **Class (`classDiagram`)**: Data models, database schemas, OOP structures.
+    -   **State (`stateDiagram-v2`)**: Lifecycle states, transitions.
+    -   **Gantt/Timeline**: Project schedules, roadmaps.
 
 ---
 
