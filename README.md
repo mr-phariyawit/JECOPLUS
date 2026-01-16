@@ -128,6 +128,30 @@ graph TD
 - ทุกอย่างพัง → `./antigravity_toolkit.sh full`
 - **มีคู่มือชัดเจน ไม่ต้องไปหาใน Stack Overflow**
 
+### 7.1 🧹 **Memory Bloat Prevention - ป้องกัน OOM Crash**
+
+สาเหตุหลักของ "Agent terminated due to error" คือ **V8 Out of Memory** จากข้อมูลสะสมใน `~/.gemini/antigravity/`:
+
+| Folder | Risk Level | คำอธิบาย |
+|:-------|:-----------|:---------|
+| `browser_recordings/` | **Critical** | สะสมได้ถึง 50GB+ จาก browser automation |
+| `brain/` | High | ข้อมูล state ของ Agent |
+| `conversations/` | Medium | ประวัติแชท (>300MB = มีปัญหา) |
+
+**วิธีตรวจสอบ:**
+
+```bash
+du -sh ~/.gemini/antigravity/*/ 2>/dev/null | sort -hr
+```
+
+**วิธีล้าง browser recordings:**
+
+```bash
+rm -rf ~/.gemini/antigravity/browser_recordings
+```
+
+**ควร Reset เมื่อ:** `browser_recordings/` > 10GB หรือ Total > 1GB
+
 ### 8. 🎯 **Prompt Engineering Best Practices - คุยกับ AI ให้ได้สิ่งที่ต้องการ**
 
 - มือใหม่มักบอก AI แบบคลุมเครือ → ได้ผลลัพธ์ไม่ตรงใจ
