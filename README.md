@@ -20,7 +20,6 @@ startup/
 │   ├── templates/                # Config templates
 │   ├── tools/                    # Architecture, RAG, Security
 │   └── workflows/                # /task, /spec, /team-* commands
-├── .claude/                      # Claude settings (auto-generated)
 ├── .memory/                      # [AUTO-SAVE] Job history & backups
 ├── antigravity_toolkit/          # Toolkit assets
 ├── docs/
