@@ -41,7 +41,7 @@ Project-Root/
 │   ├── rules/                # [BRAIN] Safety, Dev, Docs, Autoteam rules
 │   ├── workflows/            # [COMMANDS] /task, /spec, /team-*
 │   ├── memory/               # [KNOWLEDGE] Lessons, Patterns, Team History
-│   ├── skills/roles/         # [AUTOTEAM] 10 specialized roles
+│   ├── roles/                # [AUTOTEAM] 10 specialized roles
 │   ├── templates/            # [AUTOTEAM] Config templates
 │   └── tools/                # [AUTOTEAM] Architecture, RAG, Security
 ├── specs/features/           # Feature specifications

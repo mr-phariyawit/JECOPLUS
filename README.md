@@ -16,7 +16,7 @@ startup/
 │   │   ├── team-history.md       # Session memory
 │   │   └── config.yaml           # Autoteam settings
 │   ├── rules/                    # Safety, Dev, Docs, Autoteam rules
-│   ├── skills/roles/             # 10 specialized AI roles
+│   ├── roles/                    # 10 specialized AI roles (Autoteam)
 │   ├── templates/                # Config templates
 │   ├── tools/                    # Architecture, RAG, Security
 │   └── workflows/                # /task, /spec, /team-* commands
