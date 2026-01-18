@@ -170,6 +170,7 @@ sequenceDiagram
 
 | Command | Description | Files Used |
 |:--------|:------------|:-----------|
+| `/setup` | **First time setup** | Creates full `.agent/` structure |
 | `/init` | Bootstrap new project | Creates `.agent/`, `specs/`, `docs/` |
 | `/task [desc]` | Start task workflow | `workflows/task.md` → `specs/` → `src/` |
 | `/spec [desc]` | Create specification | `workflows/spec.md` → `specs/features/` |

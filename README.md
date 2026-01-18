@@ -52,41 +52,51 @@ startup/
 
 ## 🚀 Getting Started
 
-### Step 1: Clone & Sync (Brain Activation)
+### Option A: Quick Setup (Recommended for New Projects)
 
-> **Do this ONCE per machine.**
+> **For any new project, just 2 steps:**
+
+**Step 1:** Download `GEMINI.md` to your project root:
+
+```bash
+curl -o GEMINI.md https://raw.githubusercontent.com/mr-phariyawit/startup/main/GEMINI.md
+```
+
+**Step 2:** Tell Antigravity agent:
+
+```
+setup
+```
+
+**Done!** ✅ The agent will automatically create the full project structure.
+
+---
+
+### Option B: Full Clone (For Power Users)
+
+> **Do this ONCE per machine to get everything including skills.**
 
 ```bash
 git clone https://github.com/mr-phariyawit/startup.git ~/Documents/startup
 ```
 
-Then type **"sync GEMINI"** in Antigravity.
+Then type **"sync GEMINI"** in Antigravity to sync global rules.
 
-### Step 2: Install Global Skills (Brain Expansion)
+**Install Skills (Optional):**
 
-> **Do this ONCE per machine.**
+```bash
+cp -r ~/Documents/startup/skills/* ~/.gemini/antigravity/skills/
+```
 
-Type **"install skills"** (or run `cp -r skills/* ~/.gemini/antigravity/skills/`).
-
-### Step 3: Initialize Project (Bootstrapping)
-
-> **Do this for EVERY new project.**
-
-Type **"init-project"** to create:
-- `.agent/` (Rules, Workflows, Memory)
-- `.memory/` (History)
-- `specs/features/` (Specifications)
-
-### Step 4: Activate & Verify
-
-Tell Agent: **"Import rules and workflows"**
+---
 
 ## 🎮 Available Commands
 
-### Workflow Commands
+### Setup & Workflow Commands
 
 | Command | Description |
 |:--------|:------------|
+| `/setup` | **First time setup** - Creates full project structure |
 | `/init` | Bootstrap new project structure |
 | `/task [desc]` | Start Task: Analysis → Plan → Approval → Execute |
 | `/spec [desc]` | SDD: Idea → `spec.md` |
