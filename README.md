@@ -14,11 +14,11 @@ startup/
 │   ├── ai-team/                  # [DYNAMIC] Team runtime state
 │   │   ├── team-history.md       # Session logs & progress
 │   │   ├── config.yaml           # Active team settings
-│   │   └── decisions/            # Vote records
+│   │   ├── decisions/            # Vote records
+│   │   └── skills/               # Team role skills (10 roles)
 │   ├── memory/                   # [STATIC] Accumulated knowledge
 │   │   ├── lessons.md            # Learned lessons
 │   │   └── patterns.md           # Discovered patterns
-│   ├── roles/                    # Role templates (10 roles)
 │   ├── rules/                    # Agent behavior rules
 │   ├── templates/                # Config templates
 │   ├── tools/                    # Architecture, RAG, Security guides

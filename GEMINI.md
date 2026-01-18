@@ -42,11 +42,11 @@ Project-Root/
 │   ├── ai-team/              # [DYNAMIC] Team runtime state
 │   │   ├── team-history.md   # Session logs & progress
 │   │   ├── config.yaml       # Active team settings
-│   │   └── decisions/        # Vote records
+│   │   ├── decisions/        # Vote records
+│   │   └── skills/           # Team role skills (10 roles)
 │   ├── memory/               # [STATIC] Accumulated knowledge
 │   │   ├── lessons.md        # Learned lessons
 │   │   └── patterns.md       # Discovered patterns
-│   ├── roles/                # [AUTOTEAM] 10 specialized roles
 │   ├── rules/                # [BRAIN] Safety, Dev, Docs rules
 │   ├── templates/            # [AUTOTEAM] Config templates
 │   ├── tools/                # [AUTOTEAM] Architecture, RAG, Security
