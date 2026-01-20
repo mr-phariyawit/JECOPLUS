@@ -89,6 +89,7 @@ Project-Root/
 │   │   └── patterns.md           #    Discovered patterns
 │   │
 │   ├── rules/                    # 📜 Agent behavior rules
+│   ├── skills/                   # 🆕 SkillsMP Skills (10 installed)
 │   ├── templates/                # 📋 Config templates
 │   ├── tools/                    # 🔧 Architecture, RAG, Security
 │   └── workflows/                # ⚡ Command definitions
@@ -98,6 +99,23 @@ Project-Root/
 ├── docs/                         # 📚 Documentation + UXUI/
 └── src/                          # 💻 Source Code
 ```
+
+---
+
+## 🛠️ SkillsMP Skills (Installed)
+
+| Skill | Description |
+| :---- | :---------- |
+| `component-refactoring` | Component refactoring patterns |
+| `create-pr` | Create pull requests |
+| `electron-chromium-upgrade` | Electron Chromium upgrade guide |
+| `frontend-code-review` | Frontend code review checklist |
+| `frontend-testing` | Frontend testing patterns |
+| `orpc-contract-first` | oRPC contract-first development |
+| `prompt-lookup` | Prompt lookup utility |
+| `skill-creator` | Create new skills |
+| `skill-lookup` | Search for skills |
+| `vercel-react-best-practices` | Vercel React best practices |
 
 ---
 

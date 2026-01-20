@@ -1,0 +1,30 @@
+# AI Team Config v1.1 - Startup Project
+
+team:
+  roles: [tl, pm, po, ux, fe, be, api, qa, devops, ai]
+
+voting:
+  quick: { quorum: 3, threshold: "majority" }
+  standard: { quorum: 4, threshold: "two_thirds" }
+  critical: { quorum: "all", threshold: "unanimous" }
+
+human_interaction:
+  mode: batched
+  min_batch: 3
+
+test_fix:
+  max_iterations: 10
+
+quality_gates:
+  pre_commit: [tests_pass, lint_clean, no_secrets]
+  pre_deploy: [security_scan, deps_audit]
+  pre_release: [qa_signoff, docs_updated]
+
+paths:
+  history: ".agent/ai-team/team-history.md"
+  decisions: ".agent/ai-team/decisions/"
+  config: ".agent/ai-team/config.yaml"
+  specs: "specs/features/"
+  docs: "docs/"
+  rules: ".agent/rules/"
+  roles: ".agent/ai-team/skills/"

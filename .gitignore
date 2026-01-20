@@ -1,7 +1,40 @@
-# Ignore everything
-*
+# Dependencies
+node_modules/
+.pnpm-store/
 
-# Whitelist
-!GEMINI.md
-!README.md
-!.gitignore
+# Build outputs
+dist/
+build/
+.next/
+out/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Memory & Archives (auto-generated)
+.memory/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Skills repo (downloaded zips)
+skills-repo/

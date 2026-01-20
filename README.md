@@ -28,11 +28,17 @@ startup/
 ├── docs/
 │   ├── UXUI/                     # Wireframes
 │   └── images/                   # Documentation images
-├── skills/                       # Global Skills source code
-│   ├── memory-keeper/
-│   ├── sdd-architect/
-│   ├── the-auditor/
-│   └── visual-communicator/
+├── .agent/skills/                # 🆕 SkillsMP Skills (10 installed)
+│   ├── component-refactoring/
+│   ├── create-pr/
+│   ├── electron-chromium-upgrade/
+│   ├── frontend-code-review/
+│   ├── frontend-testing/
+│   ├── orpc-contract-first/
+│   ├── prompt-lookup/
+│   ├── skill-creator/
+│   ├── skill-lookup/
+│   └── vercel-react-best-practices/
 ├── specs/features/               # Feature specifications
 ├── agent.md                      # Master directives
 ├── antigravity_toolkit.sh        # Factory Reset & Restore script
@@ -48,7 +54,7 @@ startup/
 | `.agent/` | Consolidated agent config (rules, workflows, memory, roles) |
 | `.agent/workflows/` | Workflow scripts (`/task`, `/team-start`, `/team-role`, etc.) |
 | `antigravity_toolkit.sh` | Factory Reset และ Restore scripts |
-| `skills/` | Source code for Global Skills (to be installed to `~/.gemini/`) |
+| `.agent/skills/` | SkillsMP Skills (10 installed from skillsmp.com) |
 
 ## 🚀 Getting Started
 
@@ -82,11 +88,19 @@ git clone https://github.com/mr-phariyawit/startup.git ~/Documents/startup
 
 Then type **"sync GEMINI"** in Antigravity to sync global rules.
 
-**Install Skills (Optional):**
+**Skills are pre-installed in `.agent/skills/`** ✅
 
-```bash
-cp -r ~/Documents/startup/skills/* ~/.gemini/antigravity/skills/
-```
+The following 10 SkillsMP skills are included:
+- `component-refactoring` - Component refactoring patterns
+- `create-pr` - Create pull requests
+- `electron-chromium-upgrade` - Electron Chromium upgrade guide
+- `frontend-code-review` - Frontend code review checklist
+- `frontend-testing` - Frontend testing patterns
+- `orpc-contract-first` - oRPC contract-first development
+- `prompt-lookup` - Prompt lookup utility
+- `skill-creator` - Create new skills
+- `skill-lookup` - Search for skills
+- `vercel-react-best-practices` - Vercel React best practices
 
 ---
 
@@ -142,14 +156,14 @@ cp -r ~/Documents/startup/skills/* ~/.gemini/antigravity/skills/
 
 ```mermaid
 graph TD
-    A[Start] --> B[sync GEMINI]
-    B --> C[install skills]
-    C --> D[init-project]
-    D --> E[Import rules & workflows]
-    E --> F[/team-start]
-    F --> G[Work with AI Team]
-    G --> H[/team-end]
-    H --> I[Done!]
+    A[Start] --> B["sync GEMINI"]
+    B --> C["install skills"]
+    C --> D["init-project"]
+    D --> E["Import rules & workflows"]
+    E --> F["/team-start"]
+    F --> G["Work with AI Team"]
+    G --> H["/team-end"]
+    H --> I["Done!"]
 ```
 
 ## 🛠️ Factory Reset & Recovery
