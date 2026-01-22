@@ -267,10 +267,12 @@ import { useRoute, useRouter } from 'vue-router';
 import JBadge from '@/components/base/JBadge.vue';
 import ProductCard from '@/components/marketplace/ProductCard.vue';
 import { useMarketplaceStore } from '@/stores/marketplace';
+import { useCartStore } from '@/stores/cart';
 
 const route = useRoute();
 const router = useRouter();
 const marketplaceStore = useMarketplaceStore();
+const cartStore = useCartStore();
 
 // State
 const product = ref(null);
@@ -349,15 +351,30 @@ const decrementQuantity = () => {
 };
 
 const addToCart = () => {
-  // TODO: Implement cart functionality
-  console.log('Add to cart:', { product: product.value, quantity: quantity.value });
-  alert(`เพิ่ม ${product.value.name} จำนวน ${quantity.value} ชิ้นลงตะกร้าแล้ว`);
+  try {
+    // Add item to cart
+    cartStore.addItem(product.value, quantity.value);
+
+    // Show success message
+    alert(`เพิ่ม ${product.value.name} จำนวน ${quantity.value} ชิ้นลงตะกร้าแล้ว`);
+
+    // Reset quantity to 1
+    quantity.value = 1;
+  } catch (error) {
+    alert(error.message || 'เกิดข้อผิดพลาดในการเพิ่มสินค้าลงตะกร้า');
+  }
 };
 
 const buyNow = () => {
-  // TODO: Implement buy now functionality
-  console.log('Buy now:', { product: product.value, quantity: quantity.value });
-  router.push('/cart');
+  try {
+    // Add item to cart
+    cartStore.addItem(product.value, quantity.value);
+
+    // Navigate to cart page immediately
+    router.push('/cart');
+  } catch (error) {
+    alert(error.message || 'เกิดข้อผิดพลาดในการเพิ่มสินค้าลงตะกร้า');
+  }
 };
 
 const toggleFavorite = () => {
