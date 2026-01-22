@@ -2,7 +2,7 @@
 
 **Generated:** 2026-01-22
 **Purpose:** Complete context for continuing development
-**Progress:** Phase 1 (100%) + Phase 2 (40%) + Phase 3 (100%) + Phase 4 (100%) = ~65% Total
+**Progress:** Phase 1 (100%) + Phase 2 (70%) + Phase 3 (100%) + Phase 4 (100%) = ~73% Total
 
 ---
 
@@ -348,7 +348,7 @@ activity_logs (id, admin_id, action, entity_type)
 
 ## ❌ Not Started (Phases 2, 3, 5)
 
-### Phase 2: Marketplace (40% - Sprints 5-6 Complete)
+### Phase 2: Marketplace (70% - Sprints 5-7 Complete)
 
 **Sprint 5 - Product Catalog (COMPLETE ✅)**:
 
@@ -365,24 +365,36 @@ activity_logs (id, admin_id, action, entity_type)
 - ✅ Image gallery with thumbnails
 - ✅ Product specifications tabs (description, specs, reviews)
 - ✅ Quantity selector with validation
-- ✅ Add to cart & buy now buttons
+- ✅ Add to cart & buy now buttons (placeholders)
 - ✅ Favorite/wishlist toggle
 - ✅ Social share functionality
 - ✅ Related products section
-- ✅ CartView.vue (placeholder)
 - ✅ Responsive design (mobile/tablet/desktop)
+
+**Sprint 7 - Shopping Cart System (COMPLETE ✅)**:
+
+- ✅ Cart store (Pinia) with state management
+- ✅ Cart item management (add, remove, update quantity)
+- ✅ Stock quantity validation
+- ✅ localStorage persistence
+- ✅ Computed totals (subtotal, discount, shipping, total)
+- ✅ Free shipping logic (free over ฿1000, ฿50 flat rate)
+- ✅ CartView.vue with full functionality
+- ✅ Order summary with shipping progress indicator
+- ✅ ProductDetailView cart integration
+- ✅ Responsive cart layout (mobile/desktop)
 
 **Still Missing**:
 
-- Full cart system (cart.js store, cart management)
-- Checkout flow (CheckoutView.vue)
+- Checkout flow (CheckoutView.vue) - Sprint 8
 - Address management
-- Promotion/coupon system
+- Payment method selection
 - Order creation & tracking
 - OrdersView.vue, OrderDetailView.vue
+- Promotion/coupon system
 
 **Estimated**: 4 sprints (Sprints 5-8), 99 story points
-**Completed**: Sprints 5-6 (40 points)
+**Completed**: Sprints 5-7 (69 points, 70%)
 
 ### Phase 3: AI & Chat (0%)
 
