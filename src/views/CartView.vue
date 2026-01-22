@@ -217,9 +217,7 @@ const goToProduct = (productId) => {
 };
 
 const goToCheckout = () => {
-  // TODO: Implement checkout flow
-  alert('ฟีเจอร์ชำระเงินจะพร้อมใช้งานเร็วๆ นี้');
-  // router.push('/checkout');
+  router.push('/checkout');
 };
 </script>
 

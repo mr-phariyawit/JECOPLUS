@@ -22,6 +22,7 @@ import healthRoutes from './routes/health.js';
 import chatRoutes from './routes/chat.js';
 import productRoutes from './routes/products.js';
 import categoryRoutes from './routes/categories.js';
+import orderRoutes from './routes/orders.js';
 
 const app = express();
 
@@ -87,6 +88,7 @@ app.use('/api/v1/admin', adminRoutes);
 app.use('/api/v1/chat', chatRoutes);
 app.use('/api/v1/products', productRoutes);
 app.use('/api/v1/categories', categoryRoutes);
+app.use('/api/v1/orders', orderRoutes);
 app.use('/api/v1/health', healthRoutes);
 app.use('/health', healthRoutes);
 

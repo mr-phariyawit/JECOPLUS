@@ -225,17 +225,27 @@ const routes = [
         name: 'Marketplace',
         component: () => import('../views/MarketplaceView.vue')
     },
-    // TODO: Uncomment when views are created
-    // {
-    //     path: '/marketplace/product/:productId',
-    //     name: 'ProductDetail',
-    //     component: () => import('../views/ProductDetailView.vue')
-    // },
-    // {
-    //     path: '/cart',
-    //     name: 'Cart',
-    //     component: () => import('../views/CartView.vue')
-    // },
+    {
+        path: '/marketplace/product/:productId',
+        name: 'ProductDetail',
+        component: () => import('../views/ProductDetailView.vue')
+    },
+    {
+        path: '/cart',
+        name: 'Cart',
+        component: () => import('../views/CartView.vue')
+    },
+    {
+        path: '/checkout',
+        name: 'Checkout',
+        component: () => import('../views/CheckoutView.vue')
+    },
+    {
+        path: '/order-success/:orderId',
+        name: 'OrderSuccess',
+        component: () => import('../views/OrderSuccessView.vue'),
+        meta: { hideNavBar: true }
+    },
     // ============================================
     // Admin Routes
     // ============================================
