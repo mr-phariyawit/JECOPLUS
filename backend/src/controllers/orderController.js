@@ -1,5 +1,5 @@
 import * as orderService from '../services/orderService.js';
-import { ApiError } from '../middleware/errorHandler.js';
+import { ApiError } from '../utils/errors.js';
 
 /**
  * Create new order

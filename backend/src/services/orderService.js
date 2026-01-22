@@ -1,5 +1,5 @@
 import pool from '../config/database.js';
-import { ApiError } from '../middleware/errorHandler.js';
+import { ApiError } from '../utils/errors.js';
 
 /**
  * Create new order
