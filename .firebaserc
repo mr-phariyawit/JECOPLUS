@@ -4,6 +4,24 @@
     "production": "jeco-plus-offic-v2",
     "default": "jecoplus-staging"
   },
-  "targets": {},
+  "targets": {
+    "jeco-plus-offic-v2": {
+      "hosting": {
+        "staging": [
+          "jecoplus-staging"
+        ],
+        "production": [
+          "jeco-plus-offic-v2"
+        ]
+      }
+    },
+    "jecoplus-staging": {
+      "hosting": {
+        "staging": [
+          "jecoplus-staging"
+        ]
+      }
+    }
+  },
   "etags": {}
 }
