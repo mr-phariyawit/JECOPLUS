@@ -654,6 +654,330 @@ export const rejectKyc = async (req, res, next) => {
 };
 
 /**
+ * List loan applications with filters
+ * GET /api/v1/admin/loans
+ */
+export const listLoans = async (req, res, next) => {
+  try {
+    const { page, limit, search, status, sort, order } = req.query;
+    const offset = (page - 1) * limit;
+
+    // Build query conditions
+    const conditions = [];
+    const params = [];
+    let paramIndex = 1;
+
+    if (search) {
+      conditions.push(`(u.phone ILIKE $${paramIndex} OR u.first_name ILIKE $${paramIndex} OR u.last_name ILIKE $${paramIndex})`);
+      params.push(`%${search}%`);
+      paramIndex++;
+    }
+
+    if (status) {
+      conditions.push(`la.status = $${paramIndex}`);
+      params.push(status);
+      paramIndex++;
+    }
+
+    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+
+    // Validate sort column
+    const sortColumns = {
+      submittedAt: 'la.submitted_at',
+      amountRequested: 'la.amount_requested',
+      status: 'la.status',
+      createdAt: 'la.created_at',
+    };
+    const sortColumn = sortColumns[sort] || 'la.submitted_at';
+    const sortOrder = order === 'asc' ? 'ASC' : 'DESC';
+
+    // Get total count
+    const countResult = await query(
+      `SELECT COUNT(*) FROM loan_applications la
+       JOIN users u ON la.user_id = u.id
+       ${whereClause}`,
+      params
+    );
+
+    // Get loans with user and credit score info
+    const loansResult = await query(
+      `SELECT la.*,
+              u.phone, u.first_name, u.last_name, u.email,
+              cs.score as credit_score, cs.status as credit_status,
+              ps.partner_id, ps.status as partner_status
+       FROM loan_applications la
+       JOIN users u ON la.user_id = u.id
+       LEFT JOIN credit_scores cs ON la.credit_score_id = cs.id
+       LEFT JOIN partner_submissions ps ON la.partner_application_id = ps.application_id
+       ${whereClause}
+       ORDER BY ${sortColumn} ${sortOrder}
+       LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`,
+      [...params, limit, offset]
+    );
+
+    // Get stats
+    const statsResult = await query(
+      `SELECT
+         COUNT(*) FILTER (WHERE status IN ('PENDING_PARTNER', 'SUBMITTED', 'UNDER_REVIEW')) as pending,
+         COUNT(*) FILTER (WHERE status = 'APPROVED' AND approved_at >= CURRENT_DATE) as approved_today,
+         COUNT(*) FILTER (WHERE status = 'REJECTED' AND rejected_at >= CURRENT_DATE) as rejected_today
+       FROM loan_applications`
+    );
+
+    const total = parseInt(countResult.rows[0].count);
+
+    res.json({
+      success: true,
+      data: {
+        loans: loansResult.rows.map(l => ({
+          id: l.id,
+          user: {
+            id: l.user_id,
+            phone: l.phone,
+            firstName: l.first_name,
+            lastName: l.last_name,
+            email: l.email,
+          },
+          amountRequested: parseFloat(l.amount_requested),
+          termMonths: l.term_months,
+          purpose: l.purpose,
+          status: l.status,
+          creditScore: l.credit_score,
+          creditStatus: l.credit_status,
+          partnerId: l.partner_id,
+          partnerStatus: l.partner_status,
+          submittedAt: l.submitted_at,
+          approvedAt: l.approved_at,
+          rejectedAt: l.rejected_at,
+          createdAt: l.created_at,
+        })),
+        pagination: {
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit),
+        },
+        stats: {
+          pending: parseInt(statsResult.rows[0].pending),
+          approvedToday: parseInt(statsResult.rows[0].approved_today),
+          rejectedToday: parseInt(statsResult.rows[0].rejected_today),
+        },
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Get loan application details
+ * GET /api/v1/admin/loans/:loanId
+ */
+export const getLoanDetail = async (req, res, next) => {
+  try {
+    const { loanId } = req.params;
+
+    // Get loan with user info
+    const loanResult = await query(
+      `SELECT la.*, u.phone, u.first_name, u.last_name, u.email, u.birth_date
+       FROM loan_applications la
+       JOIN users u ON la.user_id = u.id
+       WHERE la.id = $1`,
+      [loanId]
+    );
+
+    if (loanResult.rows.length === 0) {
+      throw NotFound('ไม่พบใบสมัครสินเชื่อนี้');
+    }
+
+    const loan = loanResult.rows[0];
+
+    // Get credit score details
+    const creditResult = await query(
+      `SELECT * FROM credit_scores WHERE id = $1`,
+      [loan.credit_score_id]
+    );
+
+    // Get partner submissions
+    const partnerResult = await query(
+      `SELECT * FROM partner_submissions WHERE user_id = $1
+       ORDER BY created_at DESC`,
+      [loan.user_id]
+    );
+
+    // Log activity
+    await logActivity(req.user.id, 'VIEW', 'loan_application', loanId, `Reviewed loan application for ${loan.phone}`, req);
+
+    res.json({
+      success: true,
+      data: {
+        loan: {
+          id: loan.id,
+          amountRequested: parseFloat(loan.amount_requested),
+          termMonths: loan.term_months,
+          purpose: loan.purpose,
+          status: loan.status,
+          submittedAt: loan.submitted_at,
+          approvedAt: loan.approved_at,
+          rejectedAt: loan.rejected_at,
+          rejectionReason: loan.rejection_reason,
+          partnerApplicationId: loan.partner_application_id,
+          createdAt: loan.created_at,
+          updatedAt: loan.updated_at,
+        },
+        user: {
+          id: loan.user_id,
+          phone: loan.phone,
+          firstName: loan.first_name,
+          lastName: loan.last_name,
+          email: loan.email,
+          birthDate: loan.birth_date,
+        },
+        creditScore: creditResult.rows.length > 0 ? {
+          id: creditResult.rows[0].id,
+          score: creditResult.rows[0].score,
+          status: creditResult.rows[0].status,
+          breakdown: creditResult.rows[0].factors_breakdown,
+          monthlyIncome: creditResult.rows[0].monthly_income ? parseFloat(creditResult.rows[0].monthly_income) : null,
+          monthlyExpenses: creditResult.rows[0].monthly_expenses ? parseFloat(creditResult.rows[0].monthly_expenses) : null,
+          expenseRatio: creditResult.rows[0].expense_ratio ? parseFloat(creditResult.rows[0].expense_ratio) : null,
+          avgBalance: creditResult.rows[0].avg_balance ? parseFloat(creditResult.rows[0].avg_balance) : null,
+          createdAt: creditResult.rows[0].created_at,
+        } : null,
+        partnerSubmissions: partnerResult.rows.map(p => ({
+          id: p.id,
+          partnerId: p.partner_id,
+          applicationId: p.application_id,
+          status: p.status,
+          response: p.response,
+          createdAt: p.created_at,
+        })),
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Approve loan application
+ * POST /api/v1/admin/loans/:loanId/approve
+ */
+export const approveLoan = async (req, res, next) => {
+  try {
+    const { loanId } = req.params;
+    const { notes, approvedAmount, approvedTerm } = req.body;
+    const adminId = req.user.id;
+
+    // Get loan
+    const loanResult = await query(
+      `SELECT la.*, u.phone FROM loan_applications la
+       JOIN users u ON la.user_id = u.id
+       WHERE la.id = $1`,
+      [loanId]
+    );
+
+    if (loanResult.rows.length === 0) {
+      throw NotFound('ไม่พบใบสมัครสินเชื่อนี้');
+    }
+
+    const loan = loanResult.rows[0];
+
+    if (loan.status === 'APPROVED') {
+      throw BadRequest('สินเชื่อนี้ได้รับการอนุมัติแล้ว');
+    }
+
+    // Use submitted values if not overridden
+    const finalAmount = approvedAmount || loan.amount_requested;
+    const finalTerm = approvedTerm || loan.term_months;
+
+    // Approve in transaction
+    await transaction(async (client) => {
+      await client.query(
+        `UPDATE loan_applications SET
+         status = 'APPROVED',
+         approved_at = NOW(),
+         amount_approved = $2,
+         term_approved = $3,
+         updated_at = NOW()
+         WHERE id = $1`,
+        [loanId, finalAmount, finalTerm]
+      );
+    });
+
+    // Log activity
+    const description = `Approved loan application for ${loan.phone}. Amount: ${finalAmount}, Term: ${finalTerm} months. Notes: ${notes || 'N/A'}`;
+    await logActivity(adminId, 'APPROVE_LOAN', 'loan_application', loanId, description, req);
+
+    logger.info('Loan approved', { adminId, loanId, userId: loan.user_id, finalAmount, finalTerm });
+
+    res.json({
+      success: true,
+      message: 'อนุมัติสินเชื่อสำเร็จ',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Reject loan application
+ * POST /api/v1/admin/loans/:loanId/reject
+ */
+export const rejectLoan = async (req, res, next) => {
+  try {
+    const { loanId } = req.params;
+    const { reason, code } = req.body;
+    const adminId = req.user.id;
+
+    // Get loan
+    const loanResult = await query(
+      `SELECT la.*, u.phone FROM loan_applications la
+       JOIN users u ON la.user_id = u.id
+       WHERE la.id = $1`,
+      [loanId]
+    );
+
+    if (loanResult.rows.length === 0) {
+      throw NotFound('ไม่พบใบสมัครสินเชื่อนี้');
+    }
+
+    const loan = loanResult.rows[0];
+
+    if (loan.status === 'REJECTED') {
+      throw BadRequest('สินเชื่อนี้ถูกปฏิเสธแล้ว');
+    }
+
+    // Reject in transaction
+    await transaction(async (client) => {
+      await client.query(
+        `UPDATE loan_applications SET
+         status = 'REJECTED',
+         rejected_at = NOW(),
+         rejection_reason = $2,
+         rejection_code = $3,
+         updated_at = NOW()
+         WHERE id = $1`,
+        [loanId, reason, code]
+      );
+    });
+
+    // Log activity
+    const description = `Rejected loan application for ${loan.phone}. Reason: ${reason}. Code: ${code || 'N/A'}`;
+    await logActivity(adminId, 'REJECT_LOAN', 'loan_application', loanId, description, req);
+
+    logger.info('Loan rejected', { adminId, loanId, userId: loan.user_id, reason, code });
+
+    res.json({
+      success: true,
+      message: 'ปฏิเสธสินเชื่อสำเร็จ',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
  * Get admin activity logs
  * GET /api/v1/admin/activity-logs
  */
@@ -743,5 +1067,9 @@ export default {
   getKycDetail,
   approveKyc,
   rejectKyc,
+  listLoans,
+  getLoanDetail,
+  approveLoan,
+  rejectLoan,
   getActivityLogs,
 };

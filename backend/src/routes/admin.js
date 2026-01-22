@@ -106,6 +106,50 @@ router.post(
 );
 
 // =====================================================
+// LOAN MANAGEMENT
+// =====================================================
+
+/**
+ * @route   GET /api/v1/admin/loans
+ * @desc    List loan applications with filters
+ * @access  Admin
+ */
+router.get(
+  '/loans',
+  validate(adminSchemas.listLoans, 'query'),
+  adminController.listLoans
+);
+
+/**
+ * @route   GET /api/v1/admin/loans/:loanId
+ * @desc    Get loan application details
+ * @access  Admin
+ */
+router.get('/loans/:loanId', adminController.getLoanDetail);
+
+/**
+ * @route   POST /api/v1/admin/loans/:loanId/approve
+ * @desc    Approve loan application
+ * @access  Admin
+ */
+router.post(
+  '/loans/:loanId/approve',
+  validate(adminSchemas.loanApprove),
+  adminController.approveLoan
+);
+
+/**
+ * @route   POST /api/v1/admin/loans/:loanId/reject
+ * @desc    Reject loan application
+ * @access  Admin
+ */
+router.post(
+  '/loans/:loanId/reject',
+  validate(adminSchemas.loanReject),
+  adminController.rejectLoan
+);
+
+// =====================================================
 // ACTIVITY LOGS
 // =====================================================
 

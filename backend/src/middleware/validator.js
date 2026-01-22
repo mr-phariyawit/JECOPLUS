@@ -174,6 +174,28 @@ export const adminSchemas = {
     }),
     code: Joi.string().max(50),
   }),
+
+  listLoans: Joi.object({
+    page: Joi.number().integer().min(1).default(1),
+    limit: Joi.number().integer().min(1).max(100).default(20),
+    search: Joi.string().max(100),
+    status: Joi.string().valid('PENDING_PARTNER', 'SUBMITTED', 'UNDER_REVIEW', 'APPROVED', 'REJECTED', 'SUBMISSION_FAILED'),
+    sort: Joi.string().valid('submittedAt', 'amountRequested', 'status', 'createdAt'),
+    order: Joi.string().valid('asc', 'desc').default('desc'),
+  }),
+
+  loanApprove: Joi.object({
+    notes: Joi.string().max(1000),
+    approvedAmount: Joi.number().positive().max(10000000),
+    approvedTerm: Joi.number().integer().positive().max(360),
+  }),
+
+  loanReject: Joi.object({
+    reason: Joi.string().max(1000).required().messages({
+      'any.required': 'กรุณาระบุเหตุผลในการปฏิเสธสินเชื่อ',
+    }),
+    code: Joi.string().max(50),
+  }),
 };
 
 // Middleware factory for validation

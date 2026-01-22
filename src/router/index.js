@@ -257,6 +257,16 @@ const routes = [
                 component: () => import('../views/admin/AdminKYCReviewView.vue')
             },
             {
+                path: 'loans',
+                name: 'AdminLoans',
+                component: () => import('../views/admin/AdminLoansView.vue')
+            },
+            {
+                path: 'loans/:loanId',
+                name: 'AdminLoanReview',
+                component: () => import('../views/admin/AdminLoanReviewView.vue')
+            },
+            {
                 path: 'logs',
                 name: 'AdminLogs',
                 component: () => import('../views/admin/AdminActivityLogsView.vue')

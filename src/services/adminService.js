@@ -434,6 +434,256 @@ export const rejectKyc = async (sessionId, reason, code = null) => {
 };
 
 // ============================================
+// Loan Management
+// ============================================
+
+// Mock loan applications
+const mockLoanApplications = [
+  {
+    id: 'loan1',
+    user: { id: 'u1', phone: '0812345678', firstName: 'สมชาย', lastName: 'ทดสอบ', email: 'somchai@test.com' },
+    amountRequested: 50000,
+    termMonths: 12,
+    purpose: 'เงินทุนหมุนเวียน',
+    status: 'PENDING_PARTNER',
+    creditScore: 750,
+    creditStatus: 'APPROVED',
+    partnerId: 'PARTNER_001',
+    partnerStatus: 'PENDING',
+    submittedAt: new Date(Date.now() - 3600000).toISOString(),
+    createdAt: new Date(Date.now() - 3600000).toISOString(),
+  },
+  {
+    id: 'loan2',
+    user: { id: 'u4', phone: '0845678901', firstName: 'วิชัย', lastName: 'มั่งมี', email: 'wichai@test.com' },
+    amountRequested: 100000,
+    termMonths: 24,
+    purpose: 'ซื้อรถยนต์',
+    status: 'SUBMITTED',
+    creditScore: 820,
+    creditStatus: 'APPROVED',
+    partnerId: null,
+    partnerStatus: null,
+    submittedAt: new Date(Date.now() - 7200000).toISOString(),
+    createdAt: new Date(Date.now() - 7200000).toISOString(),
+  },
+  {
+    id: 'loan3',
+    user: { id: 'u7', phone: '0878901234', firstName: 'พุธ', lastName: 'เจริญ', email: 'put@test.com' },
+    amountRequested: 30000,
+    termMonths: 6,
+    purpose: 'ซ่อมแซมบ้าน',
+    status: 'APPROVED',
+    creditScore: 680,
+    creditStatus: 'APPROVED',
+    partnerId: 'PARTNER_002',
+    partnerStatus: 'APPROVED',
+    submittedAt: new Date(Date.now() - 86400000).toISOString(),
+    approvedAt: new Date(Date.now() - 7200000).toISOString(),
+    createdAt: new Date(Date.now() - 86400000).toISOString(),
+  },
+  {
+    id: 'loan4',
+    user: { id: 'u2', phone: '0823456789', firstName: 'สมหญิง', lastName: 'รักดี', email: 'somying@test.com' },
+    amountRequested: 20000,
+    termMonths: 12,
+    purpose: 'การศึกษา',
+    status: 'REJECTED',
+    creditScore: 550,
+    creditStatus: 'REJECTED',
+    partnerId: null,
+    partnerStatus: null,
+    submittedAt: new Date(Date.now() - 172800000).toISOString(),
+    rejectedAt: new Date(Date.now() - 86400000).toISOString(),
+    createdAt: new Date(Date.now() - 172800000).toISOString(),
+  },
+];
+
+/**
+ * List loan applications with filters and pagination
+ * @param {object} params - Query parameters
+ * @param {number} params.page - Page number
+ * @param {number} params.limit - Items per page
+ * @param {string} params.search - Search by phone/name
+ * @param {string} params.status - Filter by loan status
+ * @param {string} params.sort - Sort field
+ * @param {string} params.order - Sort order (asc/desc)
+ * @returns {Promise<{loans, pagination, stats}>}
+ */
+export const listLoans = async (params = {}) => {
+  if (MOCK_MODE) {
+    await new Promise((r) => setTimeout(r, 300));
+
+    let filtered = [...mockLoanApplications];
+
+    // Apply filters
+    if (params.search) {
+      const search = params.search.toLowerCase();
+      filtered = filtered.filter(
+        (l) =>
+          l.user.phone.includes(search) ||
+          l.user.firstName.toLowerCase().includes(search) ||
+          l.user.lastName.toLowerCase().includes(search)
+      );
+    }
+    if (params.status) {
+      filtered = filtered.filter((l) => l.status === params.status);
+    }
+
+    // Pagination
+    const page = params.page || 1;
+    const limit = params.limit || 20;
+    const start = (page - 1) * limit;
+    const paged = filtered.slice(start, start + limit);
+
+    return {
+      loans: paged,
+      pagination: { total: filtered.length, page, limit, totalPages: Math.ceil(filtered.length / limit) },
+      stats: {
+        pending: mockLoanApplications.filter((l) => ['PENDING_PARTNER', 'SUBMITTED', 'UNDER_REVIEW'].includes(l.status)).length,
+        approvedToday: 5,
+        rejectedToday: 2,
+      },
+    };
+  }
+
+  const queryParams = new URLSearchParams();
+
+  if (params.page) queryParams.append('page', params.page);
+  if (params.limit) queryParams.append('limit', params.limit);
+  if (params.search) queryParams.append('search', params.search);
+  if (params.status) queryParams.append('status', params.status);
+  if (params.sort) queryParams.append('sort', params.sort);
+  if (params.order) queryParams.append('order', params.order);
+
+  const response = await adminApi.get(`/loans?${queryParams.toString()}`);
+  return response.data.data;
+};
+
+/**
+ * Get loan application detail by ID
+ * @param {string} loanId - Loan application UUID
+ * @returns {Promise<{loan, user, creditScore, partnerSubmissions}>}
+ */
+export const getLoanDetail = async (loanId) => {
+  if (MOCK_MODE) {
+    await new Promise((r) => setTimeout(r, 300));
+    const loanApp = mockLoanApplications.find((l) => l.id === loanId) || mockLoanApplications[0];
+    return {
+      loan: {
+        id: loanApp.id,
+        amountRequested: loanApp.amountRequested,
+        termMonths: loanApp.termMonths,
+        purpose: loanApp.purpose,
+        status: loanApp.status,
+        submittedAt: loanApp.submittedAt,
+        approvedAt: loanApp.approvedAt,
+        rejectedAt: loanApp.rejectedAt,
+        rejectionReason: loanApp.status === 'REJECTED' ? 'คะแนนเครดิตต่ำกว่าเกณฑ์' : null,
+        partnerApplicationId: loanApp.partnerId,
+        createdAt: loanApp.createdAt,
+        updatedAt: loanApp.createdAt,
+      },
+      user: {
+        id: loanApp.user.id,
+        phone: loanApp.user.phone,
+        firstName: loanApp.user.firstName,
+        lastName: loanApp.user.lastName,
+        email: loanApp.user.email,
+        birthDate: '1990-05-15',
+      },
+      creditScore: {
+        id: 'cs1',
+        score: loanApp.creditScore,
+        status: loanApp.creditStatus,
+        breakdown: {
+          incomeStability: { score: 120, weight: 0.3 },
+          expenseRatio: { score: 85, weight: 0.2 },
+          avgBalance: { score: 90, weight: 0.2 },
+          paymentHistory: { score: 70, weight: 0.15 },
+          employment: { score: 45, weight: 0.1 },
+          age: { score: 20, weight: 0.05 },
+        },
+        monthlyIncome: 45000,
+        monthlyExpenses: 18000,
+        expenseRatio: 0.4,
+        avgBalance: 85000,
+        createdAt: new Date(Date.now() - 86400000).toISOString(),
+      },
+      partnerSubmissions: loanApp.partnerId
+        ? [
+            {
+              id: 'ps1',
+              partnerId: loanApp.partnerId,
+              applicationId: 'PA-001',
+              status: loanApp.partnerStatus,
+              response: { message: 'Application received', referenceId: 'PA-001' },
+              createdAt: loanApp.submittedAt,
+            },
+          ]
+        : [],
+    };
+  }
+
+  const response = await adminApi.get(`/loans/${loanId}`);
+  return response.data.data;
+};
+
+/**
+ * Approve loan application
+ * @param {string} loanId - Loan application UUID
+ * @param {string} notes - Optional approval notes
+ * @param {number} approvedAmount - Optional approved amount (override requested)
+ * @param {number} approvedTerm - Optional approved term (override requested)
+ * @returns {Promise<{loan}>}
+ */
+export const approveLoan = async (loanId, notes = null, approvedAmount = null, approvedTerm = null) => {
+  if (MOCK_MODE) {
+    await new Promise((r) => setTimeout(r, 500));
+    const loanIdx = mockLoanApplications.findIndex((l) => l.id === loanId);
+    if (loanIdx >= 0) {
+      mockLoanApplications[loanIdx].status = 'APPROVED';
+      mockLoanApplications[loanIdx].approvedAt = new Date().toISOString();
+    }
+    return { loan: mockLoanApplications[loanIdx] || { id: loanId, status: 'APPROVED' } };
+  }
+
+  const data = {};
+  if (notes) data.notes = notes;
+  if (approvedAmount) data.approvedAmount = approvedAmount;
+  if (approvedTerm) data.approvedTerm = approvedTerm;
+
+  const response = await adminApi.post(`/loans/${loanId}/approve`, data);
+  return response.data.data;
+};
+
+/**
+ * Reject loan application
+ * @param {string} loanId - Loan application UUID
+ * @param {string} reason - Rejection reason (required)
+ * @param {string} code - Rejection code (optional)
+ * @returns {Promise<{loan}>}
+ */
+export const rejectLoan = async (loanId, reason, code = null) => {
+  if (MOCK_MODE) {
+    await new Promise((r) => setTimeout(r, 500));
+    const loanIdx = mockLoanApplications.findIndex((l) => l.id === loanId);
+    if (loanIdx >= 0) {
+      mockLoanApplications[loanIdx].status = 'REJECTED';
+      mockLoanApplications[loanIdx].rejectedAt = new Date().toISOString();
+      mockLoanApplications[loanIdx].rejectionReason = reason;
+    }
+    return { loan: mockLoanApplications[loanIdx] || { id: loanId, status: 'REJECTED' } };
+  }
+
+  const data = { reason };
+  if (code) data.code = code;
+
+  const response = await adminApi.post(`/loans/${loanId}/reject`, data);
+  return response.data.data;
+};
+
+// ============================================
 // Activity Logs
 // ============================================
 
@@ -529,6 +779,12 @@ export default {
   getKycDetail,
   approveKyc,
   rejectKyc,
+
+  // Loans
+  listLoans,
+  getLoanDetail,
+  approveLoan,
+  rejectLoan,
 
   // Activity Logs
   getActivityLogs,
