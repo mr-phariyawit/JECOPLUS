@@ -7,12 +7,12 @@ description: Update an existing project with the latest Antigravity rules, workf
 **Trigger:** When user inputs `/sync-project` or says "sync-project" or "update project rules".
 
 ## Purpose
-To update an **existing** Antigravity project with the latest rules, workflows, and templates from the startup repository, while **preserving** project-specific configurations.
+To update an **existing** Antigravity project with the latest rules, workflows, and templates from the JECOPLUS repository, while **preserving** project-specific configurations.
 
 ## Pre-Conditions
 1. Project has already been initialized with `init-project`.
 2. `agent/` directory exists.
-3. User has pulled the latest `startup` repository (`~/Documents/startup`).
+3. User has pulled the latest `JECOPLUS` repository (`~/Documents/JECOPLUS`).
 
 ## Sync Protocol
 
@@ -23,9 +23,9 @@ To update an **existing** Antigravity project with the latest rules, workflows, 
 
 ### Phase 2: Update Rules (OVERWRITE)
 // turbo
-Copy updated rules from startup repository:
+Copy updated rules from JECOPLUS repository:
 ```bash
-cp ~/Documents/startup/GEMINI.md ~/.gemini/GEMINI.md
+cp ~/Documents/JECOPLUS/GEMINI.md ~/.gemini/GEMINI.md
 ```
 > Note: `agent/rules/` are standard and SHOULD be overwritten to ensure latest standards.
 
@@ -33,8 +33,8 @@ cp ~/Documents/startup/GEMINI.md ~/.gemini/GEMINI.md
 // turbo
 Copy updated workflows:
 ```bash
-# If .agent/workflows exists in startup, copy to project
-cp -r ~/Documents/startup/.agent/workflows/* .agent/workflows/ 2>/dev/null || true
+# If .agent/workflows exists in JECOPLUS, copy to project
+cp -r ~/Documents/JECOPLUS/.agent/workflows/* .agent/workflows/ 2>/dev/null || true
 ```
 
 ### Phase 4: Update Templates (CAREFUL MERGE)
@@ -45,9 +45,9 @@ These files should be **MERGED or ASKED**, not overwritten:
 
 ### Phase 5: Update Skills (OVERWRITE)
 // turbo
-Copy latest skills from startup repository:
+Copy latest skills from JECOPLUS repository:
 ```bash
-cp -r ~/Documents/startup/skills/* ~/.gemini/antigravity/skills/
+cp -r ~/Documents/JECOPLUS/skills/* ~/.gemini/antigravity/skills/
 ```
 
 ### Phase 6: Confirmation

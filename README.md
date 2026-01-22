@@ -1,6 +1,6 @@
-# 🛸 Antigravity Startup
+# 🛸 JECOPLUS
 
-> **Repository for Antigravity Global Rules, Toolkit, SDD Framework & Autoteam**
+> **Antigravity Global Rules, Toolkit, SDD Framework & Autoteam**
 
 ## ⚠️ Important: Google Antigravity IDE
 
@@ -9,7 +9,7 @@ This repository is designed for **Google Antigravity IDE** (powered by Google De
 ## 📁 Project Structure
 
 ```
-startup/
+JECOPLUS/
 ├── .agent/                       # [CONSOLIDATED] All agent config
 │   ├── ai-team/                  # [DYNAMIC] Team runtime state
 │   │   ├── team-history.md       # Session logs & progress
@@ -65,7 +65,7 @@ startup/
 **Step 1:** Download `GEMINI.md` to your project root:
 
 ```bash
-curl -o GEMINI.md https://raw.githubusercontent.com/mr-phariyawit/startup/main/GEMINI.md
+curl -o GEMINI.md https://raw.githubusercontent.com/mr-phariyawit/JECOPLUS/main/GEMINI.md
 ```
 
 **Step 2:** Tell Antigravity agent:
@@ -83,7 +83,7 @@ setup
 > **Do this ONCE per machine to get everything including skills.**
 
 ```bash
-git clone https://github.com/mr-phariyawit/startup.git ~/Documents/startup
+git clone https://github.com/mr-phariyawit/JECOPLUS.git ~/Documents/JECOPLUS
 ```
 
 Then type **"sync GEMINI"** in Antigravity to sync global rules.
@@ -222,6 +222,10 @@ This repository follows **SDD philosophy** — specifications don't serve code; 
 3. Read `GEMINI.md` to understand your identity and rules
 4. You are running on **Google Antigravity IDE** — NOT Cursor or VS Code
 
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
 ---
 
-*🛸 Antigravity Startup v2026.3 — Powered by SDD + Autoteam v1.1.0*
+*🛸 JECOPLUS v2026.3 — Powered by SDD + Autoteam v1.1.0*
