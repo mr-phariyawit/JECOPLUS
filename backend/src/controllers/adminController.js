@@ -703,12 +703,10 @@ export const listLoans = async (req, res, next) => {
     const loansResult = await query(
       `SELECT la.*,
               u.phone, u.first_name, u.last_name, u.email,
-              cs.score as credit_score, cs.status as credit_status,
-              ps.partner_id, ps.status as partner_status
+              cs.score as credit_score, cs.status as credit_status
        FROM loan_applications la
        JOIN users u ON la.user_id = u.id
        LEFT JOIN credit_scores cs ON la.credit_score_id = cs.id
-       LEFT JOIN partner_submissions ps ON la.partner_application_id = ps.application_id
        ${whereClause}
        ORDER BY ${sortColumn} ${sortOrder}
        LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`,
@@ -718,7 +716,7 @@ export const listLoans = async (req, res, next) => {
     // Get stats
     const statsResult = await query(
       `SELECT
-         COUNT(*) FILTER (WHERE status IN ('PENDING_PARTNER', 'SUBMITTED', 'UNDER_REVIEW')) as pending,
+         COUNT(*) FILTER (WHERE status IN ('SUBMITTED', 'UNDER_REVIEW')) as pending,
          COUNT(*) FILTER (WHERE status = 'APPROVED' AND approved_at >= CURRENT_DATE) as approved_today,
          COUNT(*) FILTER (WHERE status = 'REJECTED' AND rejected_at >= CURRENT_DATE) as rejected_today
        FROM loan_applications`
