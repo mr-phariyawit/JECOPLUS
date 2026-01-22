@@ -8,7 +8,7 @@ on:
     branches: [develop]
 
 env:
-  NODE_VERSION: '20'
+  NODE_VERSION: "20"
   REGION: asia-southeast1
   SERVICE_NAME: jecoplus-api
 
@@ -29,7 +29,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: "npm"
 
       - name: Install frontend dependencies
         run: npm ci
@@ -103,6 +103,8 @@ jobs:
           image: ${{ env.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID_STAGING }}/jecoplus/${{ env.SERVICE_NAME }}:staging-latest
           env_vars: |
             NODE_ENV=staging
+            DB_USER=jecoplus
+            DB_NAME=jecoplus
           secrets: |
             DB_HOST=DB_HOST_STAGING:latest
             DB_PASSWORD=DB_PASSWORD_STAGING:latest
