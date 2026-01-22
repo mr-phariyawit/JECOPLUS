@@ -188,6 +188,12 @@ const routes = [
         meta: { hideNavBar: true, requiresAuth: true }
     },
     {
+        path: '/kyc/ocr-confirm',
+        name: 'KYCOCRConfirm',
+        component: () => import('../views/kyc/KYCOCRConfirmView.vue'),
+        meta: { hideNavBar: true, requiresAuth: true }
+    },
+    {
         path: '/kyc/selfie',
         name: 'KYCSelfie',
         component: () => import('../views/kyc/KYCSelfieView.vue'),

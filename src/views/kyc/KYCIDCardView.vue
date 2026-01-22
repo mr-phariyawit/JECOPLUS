@@ -126,10 +126,8 @@ const confirm = async () => {
 
   if (result.success) {
     if (side.value === 'front') {
-      // Move to back side
-      side.value = 'back';
-      capturedImage.value = null;
-      capturedBlob.value = null;
+      // Move to OCR confirmation page
+      router.push('/kyc/ocr-confirm');
     } else {
       // Move to selfie
       router.push('/kyc/selfie');
