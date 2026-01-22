@@ -340,6 +340,7 @@ export const useAdminStore = defineStore('admin', () => {
    * Fetch loans list
    */
   const fetchLoans = async (page = 1) => {
+    console.log('[AdminStore.fetchLoans] Starting fetch, page:', page);
     isLoading.value = true;
     error.value = null;
 
@@ -355,13 +356,20 @@ export const useAdminStore = defineStore('admin', () => {
         if (!params[key]) delete params[key];
       });
 
+      console.log('[AdminStore.fetchLoans] Params:', params);
       const data = await adminService.listLoans(params);
+      console.log('[AdminStore.fetchLoans] Data received:', data);
+
       loans.value = data.loans;
       loansPagination.value = data.pagination;
       loansStats.value = data.stats;
 
+      console.log('[AdminStore.fetchLoans] Loans count:', loans.value?.length);
+
       return { success: true };
     } catch (err) {
+      console.error('[AdminStore.fetchLoans] Error:', err);
+      console.error('[AdminStore.fetchLoans] Error response:', err.response);
       error.value = err.response?.data?.error?.message || 'Failed to load loans';
       return { success: false, error: error.value };
     } finally {

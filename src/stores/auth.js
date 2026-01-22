@@ -9,6 +9,7 @@ export const useAuthStore = defineStore('auth', () => {
     const user = ref(null)
     const phone = ref('')
     const otpSessionId = ref('')
+    const devOtp = ref('') // <--- For testing
     const isLoggedIn = ref(false)
     const isLoading = ref(false)
     const error = ref(null)
@@ -53,6 +54,11 @@ export const useAuthStore = defineStore('auth', () => {
                 // Development mode: show OTP hint
                 ...(data.devOtp && { devOtp: data.devOtp }),
             }
+            // Save devOtp to state for UI display
+            if (data.devOtp) {
+                devOtp.value = data.devOtp
+            }
+            return result
         } catch (err) {
             const errorMessage = err.response?.data?.error?.message || 'ไม่สามารถส่ง OTP ได้ กรุณาลองใหม่'
             error.value = errorMessage
@@ -213,5 +219,6 @@ export const useAuthStore = defineStore('auth', () => {
         logout,
         updateProfile,
         clearError,
+        devOtp, // <--- Export it
     }
 })

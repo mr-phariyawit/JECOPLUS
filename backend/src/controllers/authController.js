@@ -372,6 +372,83 @@ export const revokeSession = async (req, res, next) => {
   }
 };
 
+/**
+ * Demo Login (ONLY for presentations - bypasses all security)
+ * POST /api/v1/auth/demo/login
+ * WARNING: This should NEVER be enabled in production!
+ */
+export const demoLogin = async (req, res, next) => {
+  try {
+    // Check if demo mode is enabled
+    if (!config.demo.enabled) {
+      throw Unauthorized('Demo mode is not enabled');
+    }
+
+    const { phone, password, deviceId, deviceName } = req.body;
+
+    // Validate demo credentials
+    if (phone !== config.demo.phone || password !== config.demo.password) {
+      throw Unauthorized('Invalid demo credentials');
+    }
+
+    // Find or create demo user
+    let userResult = await query(`SELECT * FROM users WHERE phone = $1`, [phone]);
+
+    let user;
+    if (userResult.rows.length === 0) {
+      // Create demo user
+      const userId = uuidv4();
+      const newUserResult = await query(
+        `INSERT INTO users (id, phone, phone_verified, status, role, kyc_status, first_name, last_name)
+         VALUES ($1, $2, true, 'ACTIVE', 'USER', 'APPROVED', 'Demo', 'User')
+         RETURNING *`,
+        [userId, phone]
+      );
+      user = newUserResult.rows[0];
+      logger.warn('Demo user created', { userId, phone });
+    } else {
+      user = userResult.rows[0];
+      await query(`UPDATE users SET last_login_at = NOW() WHERE id = $1`, [user.id]);
+    }
+
+    // Generate tokens
+    const tokens = await tokenService.generateTokenPair(user, {
+      deviceId: deviceId || 'demo-device',
+      deviceName: deviceName || 'Demo Device',
+      deviceType: 'demo',
+      ipAddress: req.ip,
+      userAgent: req.headers['user-agent'] || 'Demo',
+    });
+
+    // Set CSRF token cookie
+    setCSRFToken(req, res, () => {});
+
+    logger.warn('DEMO LOGIN USED', { userId: user.id, phone, ip: req.ip });
+
+    res.json({
+      success: true,
+      data: {
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
+        expiresIn: tokenService.getExpirySeconds(config.jwt.accessExpiry),
+        csrfToken: req.csrfToken,
+        user: {
+          id: user.id,
+          phone: user.phone,
+          firstName: user.first_name,
+          lastName: user.last_name,
+          email: user.email,
+          kycStatus: user.kyc_status,
+          isNewUser: false,
+        },
+        warning: '⚠️  DEMO MODE - All security bypassed!',
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export default {
   requestOtp,
   verifyOtp,
@@ -379,4 +456,5 @@ export default {
   logout,
   getSessions,
   revokeSession,
+  demoLogin,
 };

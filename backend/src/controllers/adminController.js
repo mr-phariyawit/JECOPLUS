@@ -44,12 +44,12 @@ export const login = async (req, res, next) => {
 
     // Verify password
     // Note: In production, admin accounts should have password_hash set
-    // For development, we'll allow a default password
+    let isValid = false;
     if (admin.password_hash) {
       isValid = await bcrypt.compare(password, admin.password_hash);
     } else {
       // If no password hash set, account is not configured
-      throw new ApiError('Account not properly configured. Contact administrator.', 500);
+      throw Unauthorized('บัญชีไม่ได้ตั้งค่ารหัสผ่าน กรุณาติดต่อผู้ดูแลระบบ');
     }
 
     if (!isValid) {

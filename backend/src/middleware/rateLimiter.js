@@ -39,6 +39,8 @@ export const globalRateLimiter = rateLimit({
     res.status(429).json(messageGenerator(req, res));
   },
   skip: (req) => {
+    // Skip for demo mode
+    if (config.demo.enabled) return true;
     // Skip for health checks
     return req.path === '/health' || req.path === '/api/v1/health';
   },
@@ -61,6 +63,7 @@ export const authRateLimiter = rateLimit({
       },
     });
   },
+  skip: (req) => config.demo.enabled,
 });
 
 // OTP rate limiter (even stricter)
@@ -85,6 +88,7 @@ export const otpRateLimiter = rateLimit({
       },
     });
   },
+  skip: (req) => config.demo.enabled,
 });
 
 // Admin rate limiter
@@ -97,6 +101,7 @@ export const adminRateLimiter = rateLimit({
   handler: (req, res) => {
     res.status(429).json(messageGenerator(req, res));
   },
+  skip: (req) => config.demo.enabled,
 });
 
 // Upload rate limiter
@@ -116,6 +121,7 @@ export const uploadRateLimiter = rateLimit({
       },
     });
   },
+  skip: (req) => config.demo.enabled,
 });
 
 export default {

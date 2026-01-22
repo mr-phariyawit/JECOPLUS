@@ -109,7 +109,7 @@ const config = {
     // Default provider: 'vertex-ai', 'claude', or 'gemini'
     // Vertex AI is preferred if configured
     defaultProvider: process.env.AI_DEFAULT_PROVIDER || 'vertex-ai',
-    
+
     // Vertex AI (Google Cloud) Configuration
     vertexAI: {
       projectId: process.env.GCP_PROJECT_ID,
@@ -117,20 +117,27 @@ const config = {
       model: process.env.VERTEX_AI_MODEL || 'gemini-1.5-pro',
       embeddingModel: process.env.VERTEX_EMBEDDING_MODEL || 'text-embedding-004',
     },
-    
+
     // Claude (Anthropic) Configuration
     claude: {
       apiKey: process.env.ANTHROPIC_API_KEY,
       model: process.env.CLAUDE_MODEL || 'claude-3-5-sonnet-20241022',
       maxTokens: parseInt(process.env.CLAUDE_MAX_TOKENS, 10) || 4096,
     },
-    
+
     // Gemini (Google) Configuration
     gemini: {
       apiKey: process.env.GEMINI_API_KEY,
       model: process.env.GEMINI_MODEL || 'gemini-2.0-flash',
       maxTokens: parseInt(process.env.GEMINI_MAX_TOKENS, 10) || 4096,
     },
+  },
+
+  // Demo Mode (WARNING: ONLY for presentations - NEVER use in production!)
+  demo: {
+    enabled: process.env.DEMO_MODE === 'true',
+    phone: process.env.DEMO_PHONE || '0999999999',
+    password: process.env.DEMO_PASSWORD || 'demo123',
   },
 };
 

@@ -1,5 +1,6 @@
 import crypto from 'crypto';
 import { ApiError } from '../utils/errors.js';
+import config from '../config/index.js';
 
 /**
  * CSRF Protection Middleware
@@ -33,7 +34,7 @@ export const setCSRFToken = (req, res, next) => {
   res.cookie(CSRF_COOKIE_NAME, token, {
     httpOnly: false, // Must be readable by JavaScript
     secure: process.env.NODE_ENV === 'production', // HTTPS only in production
-    sameSite: 'strict', // Prevent CSRF attacks
+    sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax', // Prevent CSRF attacks
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
   });
 
@@ -48,6 +49,12 @@ export const setCSRFToken = (req, res, next) => {
  * Use this on all state-changing operations (POST, PUT, PATCH, DELETE)
  */
 export const validateCSRFToken = (req, res, next) => {
+  // Skip validation in demo mode
+  if (config.demo.enabled) {
+    console.warn('⚠️  CSRF validation skipped (demo mode)');
+    return next();
+  }
+
   // Skip validation for safe methods
   if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
     return next();
@@ -103,7 +110,7 @@ export const getCSRFToken = (req, res) => {
     res.cookie(CSRF_COOKIE_NAME, token, {
       httpOnly: false,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
       maxAge: 24 * 60 * 60 * 1000,
     });
     return res.json({ csrfToken: token });

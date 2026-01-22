@@ -76,4 +76,15 @@ router.delete(
   authController.revokeSession
 );
 
+/**
+ * @route   POST /api/v1/auth/demo/login
+ * @desc    Demo login (bypasses all security - ONLY for presentations)
+ * @access  Public
+ * WARNING: This should NEVER be enabled in production!
+ */
+router.post(
+  '/demo/login',
+  authController.demoLogin
+);
+
 export default router;

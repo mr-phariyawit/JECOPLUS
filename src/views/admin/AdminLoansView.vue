@@ -195,8 +195,18 @@ const viewLoan = (loan) => {
   router.push(`/admin/loans/${loan.id}`);
 };
 
-onMounted(() => {
-  adminStore.fetchLoans();
+onMounted(async () => {
+  console.log('[AdminLoansView] Component mounted');
+  console.log('[AdminLoansView] isLoading:', adminStore.isLoading);
+  console.log('[AdminLoansView] loans:', adminStore.loans);
+  console.log('[AdminLoansView] error:', adminStore.error);
+
+  await adminStore.fetchLoans();
+
+  console.log('[AdminLoansView] After fetchLoans:');
+  console.log('[AdminLoansView] loans:', adminStore.loans);
+  console.log('[AdminLoansView] loans length:', adminStore.loans?.length);
+  console.log('[AdminLoansView] error:', adminStore.error);
 });
 </script>
 

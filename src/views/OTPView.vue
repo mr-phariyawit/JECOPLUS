@@ -12,7 +12,7 @@
         <input
           v-for="(digit, index) in 6"
           :key="index"
-          :ref="el => setInputRef(el, index)"
+          :ref="(el) => setInputRef(el, index)"
           v-model="otpDigits[index]"
           type="tel"
           inputmode="numeric"
@@ -36,14 +36,16 @@
           <span class="text-mini">ขอรหัสใหม่ได้ใน {{ countdown }} วินาที</span>
         </template>
         <template v-else>
-          <button class="otp__resend" @click="resendOTP">ขอรหัส OTP ใหม่</button>
+          <button class="otp__resend" @click="resendOTP">
+            ขอรหัส OTP ใหม่
+          </button>
         </template>
       </div>
     </div>
 
     <div class="otp__footer">
-      <JButton 
-        variant="primary" 
+      <JButton
+        variant="primary"
         :loading="isLoading"
         :disabled="!isComplete"
         @click="handleSubmit"
@@ -52,136 +54,138 @@
       </JButton>
     </div>
 
-    <p class="otp__hint text-mini">รหัส OTP สำหรับทดสอบ: 123456</p>
+    <p class="otp__hint text-mini" v-if="authStore.devOtp">
+      รหัส OTP สำหรับทดสอบ: {{ authStore.devOtp }}
+    </p>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { useAuthStore } from '../stores/auth'
-import JHeader from '../components/layout/JHeader.vue'
-import JButton from '../components/base/JButton.vue'
+import { ref, computed, onMounted, onUnmounted } from "vue";
+import { useRouter } from "vue-router";
+import { useAuthStore } from "../stores/auth";
+import JHeader from "../components/layout/JHeader.vue";
+import JButton from "../components/base/JButton.vue";
 
-const router = useRouter()
-const authStore = useAuthStore()
+const router = useRouter();
+const authStore = useAuthStore();
 
-const otpDigits = ref(['', '', '', '', '', ''])
-const otpInputs = ref([])
-const error = ref('')
-const isLoading = ref(false)
-const countdown = ref(60)
-let countdownInterval = null
+const otpDigits = ref(["", "", "", "", "", ""]);
+const otpInputs = ref([]);
+const error = ref("");
+const isLoading = ref(false);
+const countdown = ref(60);
+let countdownInterval = null;
 
 // Function ref setter for input array
 const setInputRef = (el, index) => {
   if (el) {
-    otpInputs.value[index] = el
+    otpInputs.value[index] = el;
   }
-}
+};
 
 const maskedPhone = computed(() => {
-  const phone = authStore.phone
-  if (!phone) return ''
-  return phone.slice(0, 3) + '-XXX-' + phone.slice(-4)
-})
+  const phone = authStore.phone;
+  if (!phone) return "";
+  return phone.slice(0, 3) + "-XXX-" + phone.slice(-4);
+});
 
 const isComplete = computed(() => {
-  return otpDigits.value.every(d => d !== '')
-})
+  return otpDigits.value.every((d) => d !== "");
+});
 
 const handleInput = (index, event) => {
-  const value = event.target.value
+  const value = event.target.value;
   if (value && index < 5) {
-    otpInputs.value[index + 1]?.focus()
+    otpInputs.value[index + 1]?.focus();
   }
-  error.value = ''
-}
+  error.value = "";
+};
 
 const handleKeydown = (index, event) => {
-  if (event.key === 'Backspace' && !otpDigits.value[index] && index > 0) {
-    otpInputs.value[index - 1]?.focus()
+  if (event.key === "Backspace" && !otpDigits.value[index] && index > 0) {
+    otpInputs.value[index - 1]?.focus();
   }
-}
+};
 
 const handlePaste = (event) => {
-  event.preventDefault()
-  const paste = event.clipboardData?.getData('text') || ''
-  const digits = paste.replace(/\D/g, '').slice(0, 6).split('')
-  
+  event.preventDefault();
+  const paste = event.clipboardData?.getData("text") || "";
+  const digits = paste.replace(/\D/g, "").slice(0, 6).split("");
+
   digits.forEach((digit, i) => {
-    otpDigits.value[i] = digit
-  })
-  
+    otpDigits.value[i] = digit;
+  });
+
   if (digits.length > 0) {
-    const focusIndex = Math.min(digits.length, 5)
-    otpInputs.value[focusIndex]?.focus()
+    const focusIndex = Math.min(digits.length, 5);
+    otpInputs.value[focusIndex]?.focus();
   }
-}
+};
 
 const resendOTP = async () => {
-  const result = await authStore.sendOTP(authStore.phone)
+  const result = await authStore.sendOTP(authStore.phone);
 
   if (result.success) {
-    countdown.value = 60
-    startCountdown()
-    error.value = ''
-    otpDigits.value = ['', '', '', '', '', '']
-    otpInputs.value[0]?.focus()
+    countdown.value = 60;
+    startCountdown();
+    error.value = "";
+    otpDigits.value = ["", "", "", "", "", ""];
+    otpInputs.value[0]?.focus();
 
     // Show dev OTP hint in console (development only)
     if (result.devOtp) {
-      console.log(`[DEV] New OTP: ${result.devOtp}`)
+      console.log(`[DEV] New OTP: ${result.devOtp}`);
     }
   } else {
-    error.value = result.error || 'ไม่สามารถส่ง OTP ใหม่ได้'
+    error.value = result.error || "ไม่สามารถส่ง OTP ใหม่ได้";
   }
-}
+};
 
 const startCountdown = () => {
   countdownInterval = setInterval(() => {
     if (countdown.value > 0) {
-      countdown.value--
+      countdown.value--;
     } else {
-      clearInterval(countdownInterval)
+      clearInterval(countdownInterval);
     }
-  }, 1000)
-}
+  }, 1000);
+};
 
 const handleSubmit = async () => {
-  const otp = otpDigits.value.join('')
-  
+  const otp = otpDigits.value.join("");
+
   if (otp.length !== 6) {
-    error.value = 'กรุณากรอก OTP ให้ครบ 6 หลัก'
-    return
+    error.value = "กรุณากรอก OTP ให้ครบ 6 หลัก";
+    return;
   }
-  
-  isLoading.value = true
-  error.value = ''
-  
-  const result = await authStore.verifyOTP(otp)
-  
-  isLoading.value = false
-  
+
+  isLoading.value = true;
+  error.value = "";
+
+  const result = await authStore.verifyOTP(otp);
+
+  isLoading.value = false;
+
   if (result.success) {
-    router.replace('/dashboard')
+    router.replace("/dashboard");
   } else {
-    error.value = result.error
-    otpDigits.value = ['', '', '', '', '', '']
-    otpInputs.value[0]?.focus()
+    error.value = result.error;
+    otpDigits.value = ["", "", "", "", "", ""];
+    otpInputs.value[0]?.focus();
   }
-}
+};
 
 onMounted(() => {
-  startCountdown()
-  otpInputs.value[0]?.focus()
-})
+  startCountdown();
+  otpInputs.value[0]?.focus();
+});
 
 onUnmounted(() => {
   if (countdownInterval) {
-    clearInterval(countdownInterval)
+    clearInterval(countdownInterval);
   }
-})
+});
 </script>
 
 <style scoped>
