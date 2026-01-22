@@ -1,89 +1,63 @@
 <template>
   <Teleport to="body">
     <Transition name="chat-fade">
-      <div v-if="isOpen" class="ai-chat-widget" @click.self="handleBackdropClick">
-        <div class="ai-chat-widget__container">
+      <div v-if="isOpen" class="chat-widget">
+        <div class="chat-container">
           <!-- Header -->
-          <div class="ai-chat-widget__header">
-            <div class="ai-chat-widget__header-content">
-              <div class="ai-chat-widget__avatar">
+          <div class="chat-header">
+            <div class="chat-header-info">
+              <div class="chat-avatar">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
-                  <path
-                    d="M8 14s1.5 2 4 2 4-2 4-2"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                  />
-                  <circle cx="9" cy="10" r="1" fill="currentColor" />
-                  <circle cx="15" cy="10" r="1" fill="currentColor" />
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                  <path d="M8 14s1.5 2 4 2 4-2 4-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <circle cx="9" cy="10" r="1" fill="currentColor"/>
+                  <circle cx="15" cy="10" r="1" fill="currentColor"/>
                 </svg>
               </div>
-              <div class="ai-chat-widget__header-info">
-                <h3 class="ai-chat-widget__title">🤖 JECO Advisor</h3>
-                <span class="ai-chat-widget__status">
+              <div>
+                <h3 class="chat-title">🤖 JECO Advisor</h3>
+                <span class="chat-status">
                   <span class="status-dot"></span>
                   พร้อมช่วยเหลือ 24/7
                 </span>
               </div>
             </div>
-            <button class="ai-chat-widget__close" @click="closeChat" aria-label="Close chat">
+            <button class="chat-close" @click="closeChat" aria-label="Close">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M18 6L6 18M6 6l12 12"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                />
+                <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
               </svg>
             </button>
           </div>
 
-          <!-- Messages Container -->
-          <div class="ai-chat-widget__messages" ref="messagesContainer">
+          <!-- Messages -->
+          <div class="chat-messages" ref="messagesContainer">
             <div
               v-for="message in messages"
               :key="message.id"
-              class="chat-message"
-              :class="{
-                'chat-message--user': message.role === 'user',
-                'chat-message--ai': message.role === 'assistant',
-                'chat-message--error': message.isError,
-              }"
+              class="message"
+              :class="{'message-user': message.role === 'user', 'message-error': message.isError}"
             >
-              <div v-if="message.role === 'assistant'" class="chat-message__avatar">
+              <div v-if="message.role === 'assistant'" class="message-avatar">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
-                  <path
-                    d="M8 14s1.5 2 4 2 4-2 4-2"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                  />
-                  <circle cx="9" cy="10" r="1" fill="currentColor" />
-                  <circle cx="15" cy="10" r="1" fill="currentColor" />
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                  <circle cx="9" cy="10" r="1" fill="currentColor"/>
+                  <circle cx="15" cy="10" r="1" fill="currentColor"/>
                 </svg>
               </div>
-              <div class="chat-message__bubble">
-                <p v-html="message.text"></p>
-                <span class="chat-message__time">{{ message.time }}</span>
+              <div class="message-bubble">
+                <div class="message-text" v-html="renderMarkdown(message.text)"></div>
+                <span class="message-time">{{ message.time }}</span>
               </div>
             </div>
 
             <!-- Typing Indicator -->
-            <div v-if="isTyping" class="chat-message chat-message--ai">
-              <div class="chat-message__avatar">
+            <div v-if="isTyping" class="message">
+              <div class="message-avatar">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
-                  <path
-                    d="M8 14s1.5 2 4 2 4-2 4-2"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                  />
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
                 </svg>
               </div>
-              <div class="chat-message__bubble typing">
+              <div class="message-bubble typing">
                 <span class="typing-dot"></span>
                 <span class="typing-dot"></span>
                 <span class="typing-dot"></span>
@@ -91,20 +65,8 @@
             </div>
           </div>
 
-          <!-- Quick Actions -->
-          <div v-if="showQuickActions" class="ai-chat-widget__quick-actions">
-            <button
-              v-for="action in quickActions"
-              :key="action.text"
-              class="quick-action"
-              @click="handleQuickAction(action)"
-            >
-              {{ action.text }}
-            </button>
-          </div>
-
           <!-- Input -->
-          <div class="ai-chat-widget__input">
+          <div class="chat-input">
             <input
               v-model="userInput"
               type="text"
@@ -115,19 +77,13 @@
               ref="inputRef"
             />
             <button
-              class="ai-chat-widget__send"
+              class="send-button"
               @click="handleSend"
               :disabled="!userInput.trim() || isLoading"
-              aria-label="Send message"
+              aria-label="Send"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
+                <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </button>
           </div>
@@ -138,23 +94,18 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, nextTick, onMounted } from 'vue'
+import { ref, computed, watch, nextTick } from 'vue'
 import { useAIChatStore } from '../../stores/chat'
 
 // Props
 const props = defineProps({
   mode: {
     type: String,
-    default: 'general', // 'general', 'money-coach', 'loan-assistant'
+    default: 'general',
   },
 })
 
 const chatStore = useAIChatStore()
-
-// Set mode when component mounts or prop changes
-watch(() => props.mode, (newMode) => {
-  chatStore.setMode(newMode)
-}, { immediate: true })
 
 // Refs
 const messagesContainer = ref(null)
@@ -166,22 +117,14 @@ const isOpen = computed(() => chatStore.isOpen)
 const messages = computed(() => chatStore.messages)
 const isLoading = computed(() => chatStore.isLoading)
 const isTyping = computed(() => chatStore.isTyping)
-const quickActions = computed(() => chatStore.quickActions)
 
-// Show quick actions only when there's just the welcome message
-const showQuickActions = computed(() => {
-  return messages.value.length === 1 && messages.value[0].role === 'assistant'
-})
+// Set mode
+watch(() => props.mode, (newMode) => {
+  chatStore.setMode(newMode)
+}, { immediate: true })
 
 // Methods
-const closeChat = () => {
-  chatStore.closeChat()
-}
-
-const handleBackdropClick = () => {
-  // Close on backdrop click (optional - can be removed if you want to keep it open)
-  // closeChat()
-}
+const closeChat = () => chatStore.closeChat()
 
 const handleSend = async () => {
   if (!userInput.value.trim() || isLoading.value) return
@@ -193,11 +136,6 @@ const handleSend = async () => {
   await scrollToBottom()
 }
 
-const handleQuickAction = async (action) => {
-  await chatStore.sendQuickAction(action)
-  await scrollToBottom()
-}
-
 const scrollToBottom = async () => {
   await nextTick()
   if (messagesContainer.value) {
@@ -205,35 +143,78 @@ const scrollToBottom = async () => {
   }
 }
 
-// Watch for new messages and scroll
-watch(
-  () => messages.value.length,
-  () => {
-    scrollToBottom()
+// Render markdown safely
+const renderMarkdown = (text) => {
+  if (!text) return ''
+
+  // Escape HTML to prevent XSS
+  let html = text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;')
+
+  // Convert markdown to HTML
+  // Bold: **text** (process first to avoid conflicts with italic *)
+  html = html.replace(/\*\*(.+?)\*\*/g, '{{BOLD_START}}$1{{BOLD_END}}')
+
+  // Italic: *text* (now safe, won't match ** since we replaced them)
+  html = html.replace(/\*(.+?)\*/g, '<em>$1</em>')
+
+  // Restore bold markers as HTML
+  html = html.replace(/\{\{BOLD_START\}\}/g, '<strong>')
+  html = html.replace(/\{\{BOLD_END\}\}/g, '</strong>')
+
+  // Line breaks
+  html = html.replace(/\n/g, '<br>')
+
+  // Bullet lists: lines starting with * or -
+  const lines = html.split('<br>')
+  let inList = false
+  const processedLines = []
+
+  for (let line of lines) {
+    const isBullet = /^[\s]*[*\-][\s]+/.test(line)
+
+    if (isBullet) {
+      if (!inList) {
+        processedLines.push('<ul>')
+        inList = true
+      }
+      // Remove the bullet marker and wrap in <li>
+      const content = line.replace(/^[\s]*[*\-][\s]+/, '')
+      processedLines.push(`<li>${content}</li>`)
+    } else {
+      if (inList) {
+        processedLines.push('</ul>')
+        inList = false
+      }
+      processedLines.push(line)
+    }
   }
-)
 
-// Watch for typing indicator
-watch(isTyping, () => {
-  scrollToBottom()
-})
+  if (inList) {
+    processedLines.push('</ul>')
+  }
 
-// Focus input when chat opens
+  return processedLines.join('')
+}
+
+// Watch messages
+watch(() => messages.value.length, scrollToBottom)
+watch(isTyping, scrollToBottom)
+
+// Focus input when opened
 watch(isOpen, (open) => {
   if (open) {
-    nextTick(() => {
-      inputRef.value?.focus()
-    })
+    nextTick(() => inputRef.value?.focus())
   }
-})
-
-onMounted(() => {
-  scrollToBottom()
 })
 </script>
 
 <style scoped>
-.ai-chat-widget {
+.chat-widget {
   position: fixed;
   top: 0;
   left: 0;
@@ -247,7 +228,7 @@ onMounted(() => {
   pointer-events: none;
 }
 
-.ai-chat-widget__container {
+.chat-container {
   width: 100%;
   max-width: 400px;
   max-height: 600px;
@@ -262,7 +243,7 @@ onMounted(() => {
 }
 
 /* Header */
-.ai-chat-widget__header {
+.chat-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -271,14 +252,14 @@ onMounted(() => {
   color: var(--color-white);
 }
 
-.ai-chat-widget__header-content {
+.chat-header-info {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
   flex: 1;
 }
 
-.ai-chat-widget__avatar {
+.chat-avatar {
   width: 40px;
   height: 40px;
   background: rgba(255, 255, 255, 0.1);
@@ -286,24 +267,15 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
 }
 
-.ai-chat-widget__header-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.ai-chat-widget__title {
+.chat-title {
   font-size: var(--font-size-body);
   font-weight: var(--font-weight-bold);
   margin: 0 0 2px 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
-.ai-chat-widget__status {
+.chat-status {
   font-size: var(--font-size-small);
   display: flex;
   align-items: center;
@@ -320,16 +292,11 @@ onMounted(() => {
 }
 
 @keyframes pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }
 
-.ai-chat-widget__close {
+.chat-close {
   width: 32px;
   height: 32px;
   display: flex;
@@ -341,15 +308,14 @@ onMounted(() => {
   color: var(--color-white);
   cursor: pointer;
   transition: background var(--transition-fast);
-  flex-shrink: 0;
 }
 
-.ai-chat-widget__close:hover {
+.chat-close:hover {
   background: rgba(255, 255, 255, 0.2);
 }
 
 /* Messages */
-.ai-chat-widget__messages {
+.chat-messages {
   flex: 1;
   overflow-y: auto;
   padding: var(--space-md);
@@ -359,17 +325,17 @@ onMounted(() => {
   scroll-behavior: smooth;
 }
 
-.chat-message {
+.message {
   display: flex;
   gap: var(--space-xs);
   align-items: flex-start;
 }
 
-.chat-message--user {
+.message-user {
   flex-direction: row-reverse;
 }
 
-.chat-message__avatar {
+.message-avatar {
   width: 32px;
   height: 32px;
   background: var(--color-gray-1);
@@ -381,54 +347,63 @@ onMounted(() => {
   color: var(--color-gray-4);
 }
 
-.chat-message--user .chat-message__avatar {
+.message-user .message-avatar {
   display: none;
 }
 
-.chat-message__bubble {
+.message-bubble {
   max-width: 75%;
   padding: var(--space-sm) var(--space-md);
   border-radius: var(--radius-md);
-  position: relative;
-}
-
-.chat-message--ai .chat-message__bubble {
   background: var(--color-gray-1);
   color: var(--color-black);
-  border-bottom-left-radius: 4px;
 }
 
-.chat-message--user .chat-message__bubble {
+.message-user .message-bubble {
   background: var(--color-red);
   color: var(--color-white);
-  border-bottom-right-radius: 4px;
 }
 
-.chat-message--error .chat-message__bubble {
+.message-error .message-bubble {
   background: #fee2e2;
   color: #991b1b;
   border: 1px solid #fecaca;
 }
 
-.chat-message__bubble p {
+.message-text {
   margin: 0;
   font-size: var(--font-size-body);
   line-height: 1.5;
   word-wrap: break-word;
 }
 
-.chat-message__bubble p :deep(strong) {
+.message-text strong {
   font-weight: var(--font-weight-bold);
 }
 
-.chat-message__time {
+.message-text em {
+  font-style: italic;
+}
+
+.message-text ul {
+  margin: 8px 0;
+  padding-left: 20px;
+  list-style-type: disc;
+}
+
+.message-text li {
+  margin: 4px 0;
+  line-height: 1.4;
+}
+
+.message-time {
   display: block;
   font-size: var(--font-size-small);
   opacity: 0.6;
   margin-top: var(--space-xs);
 }
 
-/* Typing Indicator */
+/* Typing */
 .typing {
   display: flex;
   gap: 4px;
@@ -444,63 +419,23 @@ onMounted(() => {
   animation: typing 1.4s infinite;
 }
 
-.typing-dot:nth-child(2) {
-  animation-delay: 0.2s;
-}
-
-.typing-dot:nth-child(3) {
-  animation-delay: 0.4s;
-}
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
 
 @keyframes typing {
-  0%,
-  60%,
-  100% {
-    transform: translateY(0);
-    opacity: 0.7;
-  }
-  30% {
-    transform: translateY(-10px);
-    opacity: 1;
-  }
-}
-
-/* Quick Actions */
-.ai-chat-widget__quick-actions {
-  padding: 0 var(--space-md) var(--space-sm);
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-xs);
-}
-
-.quick-action {
-  padding: var(--space-xs) var(--space-sm);
-  background: var(--color-gray-1);
-  border: 1px solid var(--color-gray-2);
-  border-radius: var(--radius-full);
-  font-size: var(--font-size-small);
-  color: var(--color-black);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  white-space: nowrap;
-}
-
-.quick-action:hover {
-  background: var(--color-gray-2);
-  border-color: var(--color-red);
-  color: var(--color-red);
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.7; }
+  30% { transform: translateY(-10px); opacity: 1; }
 }
 
 /* Input */
-.ai-chat-widget__input {
+.chat-input {
   display: flex;
   gap: var(--space-xs);
   padding: var(--space-md);
   border-top: 1px solid var(--color-gray-2);
-  background: var(--color-white);
 }
 
-.ai-chat-widget__input input {
+.chat-input input {
   flex: 1;
   padding: var(--space-sm) var(--space-md);
   border: 1px solid var(--color-gray-2);
@@ -511,16 +446,16 @@ onMounted(() => {
   transition: border-color var(--transition-fast);
 }
 
-.ai-chat-widget__input input:focus {
+.chat-input input:focus {
   border-color: var(--color-red);
 }
 
-.ai-chat-widget__input input:disabled {
+.chat-input input:disabled {
   background: var(--color-gray-1);
   cursor: not-allowed;
 }
 
-.ai-chat-widget__send {
+.send-button {
   width: 44px;
   height: 44px;
   display: flex;
@@ -532,51 +467,36 @@ onMounted(() => {
   border-radius: var(--radius-md);
   cursor: pointer;
   transition: all var(--transition-fast);
-  flex-shrink: 0;
 }
 
-.ai-chat-widget__send:hover:not(:disabled) {
+.send-button:hover:not(:disabled) {
   background: #c9000d;
   transform: translateY(-1px);
 }
 
-.ai-chat-widget__send:disabled {
+.send-button:disabled {
   background: var(--color-gray-2);
   color: var(--color-gray-3);
   cursor: not-allowed;
-  transform: none;
 }
 
 /* Transitions */
-.chat-fade-enter-active,
-.chat-fade-leave-active {
+.chat-fade-enter-active, .chat-fade-leave-active {
   transition: opacity 0.2s ease;
 }
 
-.chat-fade-enter-from,
-.chat-fade-leave-to {
+.chat-fade-enter-from, .chat-fade-leave-to {
   opacity: 0;
 }
 
-.chat-fade-enter-active .ai-chat-widget__container,
-.chat-fade-leave-active .ai-chat-widget__container {
-  transition: transform 0.2s ease, opacity 0.2s ease;
-}
-
-.chat-fade-enter-from .ai-chat-widget__container,
-.chat-fade-leave-to .ai-chat-widget__container {
-  transform: translateY(20px);
-  opacity: 0;
-}
-
-/* Mobile Responsive */
+/* Mobile */
 @media (max-width: 768px) {
-  .ai-chat-widget {
+  .chat-widget {
     padding: 0;
     align-items: stretch;
   }
 
-  .ai-chat-widget__container {
+  .chat-container {
     max-width: 100%;
     max-height: 100%;
     height: 100vh;

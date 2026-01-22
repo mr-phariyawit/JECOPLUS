@@ -10,7 +10,8 @@ import * as chatService from '../services/chatService.js';
 export const sendMessage = async (req, res, next) => {
   try {
     const { message, conversationId, provider, systemPrompt, mode, context } = req.body;
-    const userId = req.user.id;
+    // ⚠️ TESTING MODE: Use dummy user if auth is disabled
+    const userId = req.user?.id || '22222222-2222-2222-2222-222222222222';
 
     if (!message || !message.trim()) {
       throw BadRequest('Message is required');
@@ -40,7 +41,8 @@ export const sendMessage = async (req, res, next) => {
 export const getConversation = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const userId = req.user.id;
+    // ⚠️ TESTING MODE: Use dummy user if auth is disabled
+    const userId = req.user?.id || '22222222-2222-2222-2222-222222222222';
 
     const conversation = await chatService.getConversation(id, userId);
 
@@ -59,7 +61,8 @@ export const getConversation = async (req, res, next) => {
  */
 export const getConversations = async (req, res, next) => {
   try {
-    const userId = req.user.id;
+    // ⚠️ TESTING MODE: Use dummy user if auth is disabled
+    const userId = req.user?.id || '22222222-2222-2222-2222-222222222222';
     const limit = parseInt(req.query.limit, 10) || 20;
     const offset = parseInt(req.query.offset, 10) || 0;
 
@@ -90,7 +93,8 @@ export const getConversations = async (req, res, next) => {
  */
 export const createConversation = async (req, res, next) => {
   try {
-    const userId = req.user.id;
+    // ⚠️ TESTING MODE: Use dummy user if auth is disabled
+    const userId = req.user?.id || '22222222-2222-2222-2222-222222222222';
     const { title, provider, systemPrompt } = req.body;
 
     const conversation = await chatService.getOrCreateConversation(userId, {
@@ -115,7 +119,8 @@ export const createConversation = async (req, res, next) => {
 export const deleteConversation = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const userId = req.user.id;
+    // ⚠️ TESTING MODE: Use dummy user if auth is disabled
+    const userId = req.user?.id || '22222222-2222-2222-2222-222222222222';
 
     await chatService.deleteConversation(id, userId);
 

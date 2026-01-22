@@ -116,10 +116,18 @@ api.interceptors.response.use(
 
     // If 401 and not a refresh request
     if (error.response?.status === 401 && !originalRequest._retry) {
+      // Debug log
+      console.log('[API] 401 Error intercepted:', {
+        url: originalRequest.url,
+        errorCode: error.response?.data?.error?.code,
+        hasRefreshToken: !!getRefreshToken(),
+      });
+
       // Check if it's a token expired error
       const errorCode = error.response?.data?.error?.code;
 
-      if (errorCode === 'TOKEN_EXPIRED' && getRefreshToken()) {
+      // Try to refresh token for both TOKEN_EXPIRED and INVALID_TOKEN
+      if ((errorCode === 'TOKEN_EXPIRED' || errorCode === 'INVALID_TOKEN') && getRefreshToken()) {
         if (isRefreshing) {
           // Queue the request while refreshing
           return new Promise((resolve, reject) => {
@@ -161,8 +169,16 @@ api.interceptors.response.use(
       }
 
       // Token invalid, clear and redirect
+      console.warn('[API] Redirecting to login - Invalid token:', {
+        url: originalRequest.url,
+        errorCode,
+      });
       clearTokens();
-      window.location.href = '/login';
+
+      // Delay redirect slightly to allow logs to appear
+      setTimeout(() => {
+        window.location.href = '/login';
+      }, 100);
     }
 
     return Promise.reject(error);
