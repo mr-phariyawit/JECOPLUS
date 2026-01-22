@@ -22,3 +22,21 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Environment files (keep .example files)
+.env
+.env.local
+.env.staging
+.env.production
+!.env.example
+!.env.*.example
+
+# Firebase
+.firebase/
+firebase-debug.log
+.firebaserc.backup
+
+# Service account keys (NEVER commit these)
+*-firebase-adminsdk-*.json
+serviceAccountKey.json
+*.pem

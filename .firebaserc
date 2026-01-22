@@ -1,0 +1,9 @@
+{
+  "projects": {
+    "staging": "jecoplus-staging",
+    "production": "jeco-plus-offic-v2",
+    "default": "jecoplus-staging"
+  },
+  "targets": {},
+  "etags": {}
+}
