@@ -3,7 +3,7 @@
 > This project follows Antigravity SDD Framework.
 
 ## Project Info
-- **Name**: HonKaTack
+- **Name**: JECOPLUS
 - **Started**: 2026-01-22
 - **Status**: Active
 

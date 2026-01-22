@@ -1,0 +1,319 @@
+/* JECO+ 2025 - Light Theme Design System */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import './tokens.css';
+
+/* === RESET & BASE === */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-family);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-normal);
+  color: var(--color-black);
+  background: var(--color-gray-1);
+  min-height: 100vh;
+}
+
+/* === APP CONTAINER (Mobile-first) === */
+#app {
+  width: 100%;
+  max-width: 430px;
+  min-height: 100vh;
+  margin: 0 auto;
+  position: relative;
+  overflow-x: hidden;
+  background: var(--color-white);
+}
+
+/* === TYPOGRAPHY UTILITIES === */
+.text-header {
+  font-size: var(--font-size-header);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+  color: var(--color-black);
+}
+
+.text-subheader {
+  font-size: var(--font-size-subheader);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+  color: var(--color-black);
+}
+
+.text-title {
+  font-size: var(--font-size-title);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+  color: var(--color-black);
+}
+
+.text-body {
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-normal);
+  color: var(--color-gray-5);
+}
+
+.text-small {
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-normal);
+  color: var(--color-gray-4);
+}
+
+.text-mini {
+  font-size: var(--font-size-mini);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-normal);
+  color: var(--color-gray-3);
+}
+
+/* === SCREEN LAYOUTS === */
+.screen {
+  min-height: 100vh;
+  padding: var(--space-md);
+  padding-bottom: calc(80px + var(--space-md));
+  background: var(--color-white);
+}
+
+.screen--no-nav {
+  padding-bottom: var(--space-md);
+}
+
+.screen--gray {
+  background-color: var(--color-gray-1);
+}
+
+.screen--center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* === SECTION SPACING === */
+.section {
+  margin-bottom: var(--space-lg);
+}
+
+.section-title {
+  font-size: var(--font-size-title);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--space-md);
+  color: var(--color-black);
+}
+
+/* === CARD UTILITIES === */
+.card {
+  background: var(--color-white);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.card--elevated {
+  box-shadow: var(--shadow-md);
+}
+
+.card--bordered {
+  border: 1px solid var(--color-gray-2);
+  box-shadow: none;
+}
+
+/* === COMMON PATTERNS === */
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.flex-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.gap-xs { gap: var(--space-xs); }
+.gap-sm { gap: var(--space-sm); }
+.gap-md { gap: var(--space-md); }
+.gap-lg { gap: var(--space-lg); }
+
+/* === CURRENCY DISPLAY === */
+.amount {
+  font-weight: var(--font-weight-bold);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-black);
+}
+
+.amount--large {
+  font-size: var(--font-size-header);
+}
+
+.amount--medium {
+  font-size: var(--font-size-title);
+}
+
+.amount--red {
+  color: var(--color-red);
+}
+
+.currency {
+  font-size: 0.75em;
+  font-weight: var(--font-weight-regular);
+  margin-left: var(--space-xs);
+  color: var(--color-gray-4);
+}
+
+/* === STATUS COLORS === */
+.status--success {
+  color: var(--color-success);
+}
+
+.status--warning {
+  color: var(--color-warning);
+}
+
+.status--error {
+  color: var(--color-error);
+}
+
+.status--info {
+  color: var(--color-info);
+}
+
+/* === ANIMATIONS === */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-fadeIn { animation: fadeIn var(--transition-normal) ease-out; }
+.animate-slideUp { animation: slideUp var(--transition-normal) ease-out; }
+.animate-slideDown { animation: slideDown var(--transition-normal) ease-out; }
+
+/* === SKELETON LOADING === */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-gray-1) 25%,
+    var(--color-gray-2) 50%,
+    var(--color-gray-1) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-sm);
+}
+
+/* === SCROLLBAR === */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-gray-1);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-gray-3);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-gray-4);
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* === DIVIDER === */
+.divider {
+  height: 1px;
+  background: var(--color-gray-2);
+  margin: var(--space-md) 0;
+}
+
+.divider--vertical {
+  width: 1px;
+  height: auto;
+  margin: 0 var(--space-md);
+}
+
+/* === FOCUS STATES === */
+*:focus-visible {
+  outline: 2px solid var(--color-red);
+  outline-offset: 2px;
+}
+
+/* === SELECTION === */
+::selection {
+  background: var(--color-red);
+  color: var(--color-white);
+}
+
+/* === LINK STYLES === */
+a {
+  color: var(--color-red);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--color-black);
+}

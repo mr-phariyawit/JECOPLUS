@@ -1,6 +1,6 @@
 # 🤖 AI Team History
 
-## Project: HonKaTack
+## Project: JECOPLUS
 **Started:** 2026-01-22
 **Status:** Active
 

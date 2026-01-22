@@ -1,0 +1,146 @@
+import { createRouter, createWebHistory } from 'vue-router'
+
+const routes = [
+    {
+        path: '/',
+        redirect: '/splash'
+    },
+    {
+        path: '/splash',
+        name: 'Splash',
+        component: () => import('../views/SplashView.vue'),
+        meta: { hideNavBar: true }
+    },
+    {
+        path: '/login',
+        name: 'Login',
+        component: () => import('../views/LoginView.vue'),
+        meta: { hideNavBar: true }
+    },
+    {
+        path: '/otp',
+        name: 'OTP',
+        component: () => import('../views/OTPView.vue'),
+        meta: { hideNavBar: true }
+    },
+    {
+        path: '/dashboard',
+        name: 'Dashboard',
+        component: () => import('../views/DashboardView.vue')
+    },
+    {
+        path: '/loans',
+        name: 'Loans',
+        component: () => import('../views/LoansView.vue')
+    },
+    {
+        path: '/loan/:loanId',
+        name: 'LoanDetail',
+        component: () => import('../views/LoanDetailView.vue')
+    },
+    {
+        path: '/pay/:loanId/:installmentId',
+        name: 'PaymentMethods',
+        component: () => import('../views/PaymentMethodsView.vue'),
+        meta: { hideNavBar: true }
+    },
+    {
+        path: '/pay/jwallet/:loanId/:installmentId',
+        name: 'PayJWallet',
+        component: () => import('../views/PayJWalletView.vue'),
+        meta: { hideNavBar: true }
+    },
+    {
+        path: '/pay/card/:loanId/:installmentId',
+        name: 'PayCard',
+        component: () => import('../views/PayCardView.vue'),
+        meta: { hideNavBar: true }
+    },
+    {
+        path: '/pay/bank/:loanId/:installmentId',
+        name: 'PayBank',
+        component: () => import('../views/PayBankView.vue'),
+        meta: { hideNavBar: true }
+    },
+    {
+        path: '/payment-result/:status',
+        name: 'PaymentResult',
+        component: () => import('../views/PaymentResultView.vue'),
+        meta: { hideNavBar: true }
+    },
+    {
+        path: '/payment-settings',
+        name: 'PaymentSettings',
+        component: () => import('../views/PaymentSettingsView.vue')
+    },
+    {
+        path: '/notifications',
+        name: 'Notifications',
+        component: () => import('../views/NotificationsView.vue')
+    },
+    {
+        path: '/profile',
+        name: 'Profile',
+        component: () => import('../views/ProfileView.vue')
+    },
+    {
+        path: '/support',
+        name: 'Support',
+        component: () => import('../views/SupportView.vue')
+    },
+    {
+        path: '/ecosystem',
+        name: 'Ecosystem',
+        component: () => import('../views/EcosystemView.vue')
+    },
+    {
+        path: '/apply',
+        name: 'ApplyLoan',
+        component: () => import('../views/ApplyLoanView.vue'),
+        meta: { hideNavBar: true }
+    },
+    {
+        path: '/apply/success',
+        name: 'ApplySuccess',
+        component: () => import('../views/ApplySuccessView.vue'),
+        meta: { hideNavBar: true }
+    },
+    {
+        path: '/apply/:loanId',
+        name: 'ApplyLoanForm',
+        component: () => import('../views/ApplyLoanFormView.vue'),
+        meta: { hideNavBar: true }
+    },
+    {
+        path: '/bills',
+        name: 'BillPayment',
+        component: () => import('../views/BillPaymentView.vue'),
+        meta: { hideNavBar: true }
+    },
+    // New AI & Demo Routes
+    {
+        path: '/ai-scoring',
+        name: 'AICreditScoring',
+        component: () => import('../views/AICreditScoringView.vue'),
+        meta: { hideNavBar: true }
+    },
+    {
+        path: '/business-impact',
+        name: 'BusinessImpact',
+        component: () => import('../views/BusinessImpactView.vue'),
+        meta: { hideNavBar: true }
+    },
+    {
+        path: '/architecture',
+        name: 'SystemArchitecture',
+        component: () => import('../views/SystemArchitectureView.vue'),
+        meta: { hideNavBar: true }
+    }
+]
+
+const router = createRouter({
+    history: createWebHistory(),
+    routes
+})
+
+export default router
