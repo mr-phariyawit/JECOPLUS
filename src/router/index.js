@@ -225,16 +225,17 @@ const routes = [
         name: 'Marketplace',
         component: () => import('../views/MarketplaceView.vue')
     },
-    {
-        path: '/marketplace/product/:productId',
-        name: 'ProductDetail',
-        component: () => import('../views/ProductDetailView.vue')
-    },
-    {
-        path: '/cart',
-        name: 'Cart',
-        component: () => import('../views/CartView.vue')
-    },
+    // TODO: Uncomment when views are created
+    // {
+    //     path: '/marketplace/product/:productId',
+    //     name: 'ProductDetail',
+    //     component: () => import('../views/ProductDetailView.vue')
+    // },
+    // {
+    //     path: '/cart',
+    //     name: 'Cart',
+    //     component: () => import('../views/CartView.vue')
+    // },
     // ============================================
     // Admin Routes
     // ============================================
