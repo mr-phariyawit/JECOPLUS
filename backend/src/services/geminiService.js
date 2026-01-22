@@ -9,7 +9,7 @@ import config from '../config/index.js';
 class GeminiService {
   constructor() {
     this.client = null;
-    this.model = config.ai?.gemini?.model || 'gemini-1.5-ultra';
+    this.model = config.ai?.gemini?.model || 'gemini-2.0-flash';
     
     if (config.ai?.gemini?.apiKey) {
       this.client = new GoogleGenerativeAI(config.ai.gemini.apiKey);
@@ -69,8 +69,8 @@ class GeminiService {
       const response = await result.response;
       const text = response.text();
 
-      // Get usage metadata if available
-      const usageMetadata = response.usageMetadata();
+      // Get usage metadata if available (property, not method in newer SDK)
+      const usageMetadata = response.usageMetadata;
 
       logger.info(`Gemini API response: ${text.substring(0, 100)}...`);
 

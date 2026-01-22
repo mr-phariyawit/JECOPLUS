@@ -3,6 +3,7 @@ import { query, transaction } from '../config/database.js';
 import { NotFound, BadRequest } from '../utils/errors.js';
 import logger from '../utils/logger.js';
 import aiChatService from './aiChatService.js';
+import ragService from './ragService.js';
 
 /**
  * Chat Service
@@ -173,13 +174,42 @@ export const sendMessage = async (userId, message, options = {}) => {
     content: msg.content,
   }));
 
+  // RAG: Retrieve relevant context (if RAG is available)
+  let enhancedSystemPrompt = options.systemPrompt || conversation.system_prompt;
+  let ragContext = null;
+
+  try {
+    const isRAGAvailable = await ragService.isRAGAvailable();
+    if (isRAGAvailable) {
+      ragContext = await ragService.retrieveContext(message, userId, {
+        entityTypes: ['product', 'loan', 'user_profile'],
+        maxResults: 5,
+        similarityThreshold: 0.7,
+      });
+
+      if (ragContext.count > 0) {
+        enhancedSystemPrompt = ragService.buildEnhancedPrompt(
+          enhancedSystemPrompt || aiChatService.systemPrompt,
+          ragContext.formattedContext
+        );
+        logger.debug(`RAG context retrieved: ${ragContext.count} contexts`);
+      }
+    }
+  } catch (error) {
+    logger.warn('RAG context retrieval failed, continuing without context:', error);
+    // Continue without RAG context (graceful degradation)
+  }
+
   // Generate AI response
   const aiResponse = await aiChatService.generateResponse(message, conversationHistory, {
     provider: options.provider || conversation.provider,
-    systemPrompt: options.systemPrompt || conversation.system_prompt,
+    systemPrompt: enhancedSystemPrompt,
     conversationId: conversation.id,
     temperature: 0.7,
     maxTokens: 2048,
+    mode: options.mode,
+    context: options.context,
+    userId: userId,
   });
 
   if (!aiResponse.success) {
@@ -198,7 +228,10 @@ export const sendMessage = async (userId, message, options = {}) => {
       model: aiResponse.data.metadata?.model,
       tokens: aiResponse.data.metadata?.tokens,
       responseTime,
-      context: aiResponse.data.metadata?.context,
+      context: ragContext ? {
+        contextsCount: ragContext.count,
+        contexts: ragContext.contexts,
+      } : null,
     }
   );
 

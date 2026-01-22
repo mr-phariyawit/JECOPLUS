@@ -120,10 +120,14 @@ export const verifyOtp = async (sessionId, otp) => {
   }
 
   const response = await api.post('/auth/otp/verify', { sessionId, otp });
-  const { accessToken, refreshToken, user } = response.data.data;
+  const { accessToken, refreshToken, user, csrfToken } = response.data.data;
 
   // Store tokens
   setTokens(accessToken, refreshToken);
+  
+  if (csrfToken) {
+    localStorage.setItem('csrf_token', csrfToken);
+  }
 
   return { accessToken, refreshToken, user };
 };

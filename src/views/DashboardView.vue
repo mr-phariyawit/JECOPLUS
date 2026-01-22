@@ -3,13 +3,21 @@
     <header class="dashboard__header">
       <div class="dashboard__greeting">
         <p class="text-small">สวัสดี</p>
-        <h1 class="text-title">{{ authStore.fullName || 'คุณลูกค้า' }}</h1>
+        <h1 class="text-title">{{ authStore.fullName || "คุณลูกค้า" }}</h1>
       </div>
       <button class="dashboard__notif" @click="goToNotifications">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <path d="M18 8A6 6 0 106 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path
+            d="M18 8A6 6 0 106 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
         </svg>
-        <span v-if="unreadCount" class="dashboard__notif-badge">{{ unreadCount }}</span>
+        <span v-if="unreadCount" class="dashboard__notif-badge">{{
+          unreadCount
+        }}</span>
       </button>
     </header>
 
@@ -19,18 +27,39 @@
         <div class="ai-recommend__content">
           <div class="ai-recommend__icon">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-              <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <circle
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="2"
+              />
+              <path
+                d="M12 6v6l4 2"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
             </svg>
           </div>
           <div class="ai-recommend__text">
             <span class="ai-recommend__badge">AI แนะนำ</span>
             <p class="ai-recommend__title">KB Personal Loan</p>
-            <p class="ai-recommend__desc">เหมาะกับโปรไฟล์ของคุณ ดอกเบี้ยต่ำสุด 15%</p>
+            <p class="ai-recommend__desc">
+              เหมาะกับโปรไฟล์ของคุณ ดอกเบี้ยต่ำสุด 15%
+            </p>
           </div>
-          <button class="ai-recommend__btn" @click="$router.push('/ai-scoring')">
+          <button
+            class="ai-recommend__btn"
+            @click="$router.push('/ai-scoring')"
+          >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path
+                d="M9 18L15 12L9 6"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
             </svg>
           </button>
         </div>
@@ -47,7 +76,9 @@
           </p>
           <div class="summary__stats">
             <div class="summary__stat">
-              <span class="summary__stat-value">{{ loansStore.activeLoans.length }}</span>
+              <span class="summary__stat-value">{{
+                loansStore.activeLoans.length
+              }}</span>
               <span class="summary__stat-label">สัญญา</span>
             </div>
             <div class="summary__divider"></div>
@@ -64,11 +95,18 @@
     <section class="dashboard__loans section">
       <div class="flex-between">
         <h2 class="section-title">สินเชื่อของฉัน</h2>
-        <router-link to="/loans" class="dashboard__see-all">ดูทั้งหมด</router-link>
+        <router-link to="/loans" class="dashboard__see-all"
+          >ดูทั้งหมด</router-link
+        >
       </div>
 
       <div v-if="loansStore.isLoading" class="dashboard__loading">
-        <div v-for="i in 2" :key="i" class="skeleton" style="height: 120px; margin-bottom: 12px;"></div>
+        <div
+          v-for="i in 2"
+          :key="i"
+          class="skeleton"
+          style="height: 120px; margin-bottom: 12px"
+        ></div>
       </div>
 
       <div v-else class="dashboard__loan-list">
@@ -94,13 +132,22 @@
                 <div class="loan-card__progress">
                   <div
                     class="loan-card__progress-bar"
-                    :style="{ width: `${(loan.paidInstallments / loan.totalInstallments) * 100}%` }"
+                    :style="{
+                      width: `${(loan.paidInstallments / loan.totalInstallments) * 100}%`,
+                    }"
                   ></div>
                 </div>
-                <span class="text-mini">{{ loan.paidInstallments }}/{{ loan.totalInstallments }} งวด</span>
+                <span class="text-mini"
+                  >{{ loan.paidInstallments }}/{{
+                    loan.totalInstallments
+                  }}
+                  งวด</span
+                >
               </div>
               <div class="loan-card__due">
-                <span class="text-mini">ครบกำหนด {{ formatDate(loan.nextDueDate) }}</span>
+                <span class="text-mini"
+                  >ครบกำหนด {{ formatDate(loan.nextDueDate) }}</span
+                >
               </div>
             </div>
           </div>
@@ -115,8 +162,21 @@
         <button class="action-item" @click="$router.push('/apply')">
           <div class="action-item__icon action-item__icon--loan">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" stroke-width="2"/>
-              <path d="M12 9V15M9 12H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <rect
+                x="2"
+                y="5"
+                width="20"
+                height="14"
+                rx="2"
+                stroke="currentColor"
+                stroke-width="2"
+              />
+              <path
+                d="M12 9V15M9 12H15"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
             </svg>
           </div>
           <span>สมัครสินเชื่อ</span>
@@ -124,8 +184,16 @@
         <button class="action-item" @click="$router.push('/bills')">
           <div class="action-item__icon action-item__icon--payment">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" stroke-width="2"/>
-              <path d="M2 10H22" stroke="currentColor" stroke-width="2"/>
+              <rect
+                x="2"
+                y="4"
+                width="20"
+                height="16"
+                rx="2"
+                stroke="currentColor"
+                stroke-width="2"
+              />
+              <path d="M2 10H22" stroke="currentColor" stroke-width="2" />
             </svg>
           </div>
           <span>จ่ายบิล/บริการ</span>
@@ -133,9 +201,25 @@
         <button class="action-item" @click="openChat">
           <div class="action-item__icon action-item__icon--support">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-              <path d="M9 9a3 3 0 115.83 1c0 2-3 3-3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <path d="M12 17h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <circle
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="2"
+              />
+              <path
+                d="M9 9a3 3 0 115.83 1c0 2-3 3-3 3"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+              <path
+                d="M12 17h.01"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
             </svg>
           </div>
           <span>AI Assistant</span>
@@ -152,8 +236,19 @@
         <button class="demo-item" @click="$router.push('/ai-scoring')">
           <div class="demo-item__icon demo-item__icon--ai">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-              <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <circle
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="2"
+              />
+              <path
+                d="M12 6v6l4 2"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
             </svg>
           </div>
           <div class="demo-item__content">
@@ -165,8 +260,13 @@
         <button class="demo-item" @click="$router.push('/business-impact')">
           <div class="demo-item__icon demo-item__icon--business">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <path d="M3 3v18h18" stroke="currentColor" stroke-width="2"/>
-              <path d="M18 9l-5 5-4-4-3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M3 3v18h18" stroke="currentColor" stroke-width="2" />
+              <path
+                d="M18 9l-5 5-4-4-3 3"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
             </svg>
           </div>
           <div class="demo-item__content">
@@ -178,8 +278,21 @@
         <button class="demo-item" @click="$router.push('/architecture')">
           <div class="demo-item__icon demo-item__icon--tech">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <rect x="2" y="3" width="20" height="14" rx="2" stroke="currentColor" stroke-width="2"/>
-              <path d="M8 21h8M12 17v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <rect
+                x="2"
+                y="3"
+                width="20"
+                height="14"
+                rx="2"
+                stroke="currentColor"
+                stroke-width="2"
+              />
+              <path
+                d="M8 21h8M12 17v4"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
             </svg>
           </div>
           <div class="demo-item__content">
@@ -191,10 +304,34 @@
         <button class="demo-item" @click="$router.push('/ecosystem')">
           <div class="demo-item__icon demo-item__icon--eco">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
-              <circle cx="12" cy="4" r="2" stroke="currentColor" stroke-width="2"/>
-              <circle cx="19" cy="17" r="2" stroke="currentColor" stroke-width="2"/>
-              <circle cx="5" cy="17" r="2" stroke="currentColor" stroke-width="2"/>
+              <circle
+                cx="12"
+                cy="12"
+                r="3"
+                stroke="currentColor"
+                stroke-width="2"
+              />
+              <circle
+                cx="12"
+                cy="4"
+                r="2"
+                stroke="currentColor"
+                stroke-width="2"
+              />
+              <circle
+                cx="19"
+                cy="17"
+                r="2"
+                stroke="currentColor"
+                stroke-width="2"
+              />
+              <circle
+                cx="5"
+                cy="17"
+                r="2"
+                stroke="currentColor"
+                stroke-width="2"
+              />
             </svg>
           </div>
           <div class="demo-item__content">
@@ -208,49 +345,53 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { useAuthStore } from '../stores/auth'
-import { useLoansStore } from '../stores/loans'
-import { formatCurrency, formatDate, notifications } from '../services/mockData'
-import JCard from '../components/base/JCard.vue'
-import JBadge from '../components/base/JBadge.vue'
-import { useAIChatStore } from '../stores/chat'
+import { computed, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { useAuthStore } from "../stores/auth";
+import { useLoansStore } from "../stores/loans";
+import {
+  formatCurrency,
+  formatDate,
+  notifications,
+} from "../services/mockData";
+import JCard from "../components/base/JCard.vue";
+import JBadge from "../components/base/JBadge.vue";
+import { useAIChatStore } from "../stores/chat";
 
-const router = useRouter()
-const authStore = useAuthStore()
-const loansStore = useLoansStore()
-const chatStore = useAIChatStore()
+const router = useRouter();
+const authStore = useAuthStore();
+const loansStore = useLoansStore();
+const chatStore = useAIChatStore();
 
 const unreadCount = computed(() => {
-  return notifications.filter(n => !n.read).length
-})
+  return notifications.filter((n) => !n.read).length;
+});
 
 const nextDueDays = computed(() => {
-  if (loansStore.activeLoans.length === 0) return '-'
+  if (loansStore.activeLoans.length === 0) return "-";
   const nextDue = loansStore.activeLoans
-    .map(l => new Date(l.nextDueDate))
-    .sort((a, b) => a - b)[0]
-  const today = new Date()
-  const diff = Math.ceil((nextDue - today) / (1000 * 60 * 60 * 24))
-  return diff > 0 ? diff : 0
-})
+    .map((l) => new Date(l.nextDueDate))
+    .sort((a, b) => a - b)[0];
+  const today = new Date();
+  const diff = Math.ceil((nextDue - today) / (1000 * 60 * 60 * 24));
+  return diff > 0 ? diff : 0;
+});
 
 const goToLoan = (loanId) => {
-  router.push(`/loan/${loanId}`)
-}
+  router.push(`/loan/${loanId}`);
+};
 
 const goToNotifications = () => {
-  router.push('/notifications')
-}
+  router.push("/notifications");
+};
 
 const openChat = () => {
-  chatStore.openChat()
-}
+  chatStore.openChat();
+};
 
 onMounted(() => {
-  loansStore.fetchLoans()
-})
+  loansStore.fetchLoans();
+});
 </script>
 
 <style scoped>
@@ -309,7 +450,7 @@ onMounted(() => {
 .ai-recommend__icon {
   width: 56px;
   height: 56px;
-  background: linear-gradient(135deg, var(--color-red) 0%, #FF6B6B 100%);
+  background: linear-gradient(135deg, var(--color-red) 0%, #ff6b6b 100%);
   color: white;
   border-radius: var(--radius-md);
   display: flex;
@@ -320,8 +461,13 @@ onMounted(() => {
 }
 
 @keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
 }
 
 .ai-recommend__text {
@@ -493,9 +639,18 @@ onMounted(() => {
   color: var(--color-white);
 }
 
-.action-item__icon--loan { background: var(--color-red); }
-.action-item__icon--payment { background: var(--color-black); }
-.action-item__icon--support { background: var(--color-gray-5); }
+.action-item__icon--loan {
+  background: var(--color-red);
+}
+.action-item__icon--payment {
+  background: var(--color-black);
+}
+.action-item__icon--support {
+  background: var(--color-gray-5);
+}
+.action-item__icon--money {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
 
 .action-item span {
   font-size: var(--font-size-mini);
@@ -504,7 +659,7 @@ onMounted(() => {
 
 /* Demo Section */
 .demo-section {
-  background: linear-gradient(135deg, #1E1C1C 0%, #2d2b2b 100%);
+  background: linear-gradient(135deg, #1e1c1c 0%, #2d2b2b 100%);
   margin: 0 calc(-1 * var(--space-md));
   margin-bottom: calc(-1 * 80px - var(--space-md));
   padding: var(--space-lg) var(--space-md);
@@ -556,10 +711,18 @@ onMounted(() => {
   flex-shrink: 0;
 }
 
-.demo-item__icon--ai { background: var(--color-red); }
-.demo-item__icon--business { background: #10B981; }
-.demo-item__icon--tech { background: #3B82F6; }
-.demo-item__icon--eco { background: #8B5CF6; }
+.demo-item__icon--ai {
+  background: var(--color-red);
+}
+.demo-item__icon--business {
+  background: #10b981;
+}
+.demo-item__icon--tech {
+  background: #3b82f6;
+}
+.demo-item__icon--eco {
+  background: #8b5cf6;
+}
 
 .demo-item__content {
   flex: 1;

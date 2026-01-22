@@ -6,6 +6,7 @@ import logger from '../utils/logger.js';
 import { BadRequest, Unauthorized, AuthErrors } from '../utils/errors.js';
 import * as tokenService from '../services/tokenService.js';
 import * as firebaseService from '../services/firebaseService.js';
+import { setCSRFToken } from '../middleware/csrf.js';
 
 /**
  * Request OTP for login
@@ -49,19 +50,39 @@ export const requestOtp = async (req, res, next) => {
     const expiresAt = new Date(Date.now() + config.otp.expirySeconds * 1000);
 
     // For development: generate mock OTP
+    // Generate real OTP
+    // For development, we still want to log it to console but NOT hardcode '123456'
+    
+    // In production/staging: use Firebase Phone Auth
+    // In development: we can mock the Firebase step or use a local generator
+    // For this security fix, we will rely on the service to handle it, but we MUST NOT insert hardcoded '123456' hash
+    
     let firebaseSessionInfo = null;
-    if (config.env === 'development') {
-      // In development, use mock OTP
-      const mockOtp = '123456';
-      const hashedOtp = await bcrypt.hash(mockOtp, 10);
+    let devOtp = null;
 
-      await query(
+    if (config.env === 'development') {
+       // In development, if not using real Firebase, we might need a way to test.
+       // However, the task is to REMOVE hardcoded OTP.
+       // We should use a random one if we are mocking.
+       
+       // BUT, checking the original code, it seems 'mockOtp' was used to bypass firebase.
+       // Correct approach:
+       // 1. Generate random OTP
+       // 2. Hash it
+       // 3. Store it
+       // 4. Log it (only in dev)
+       
+       const randomOtp = Math.floor(100000 + Math.random() * 900000).toString();
+       const hashedOtp = await bcrypt.hash(randomOtp, 10);
+       devOtp = randomOtp;
+
+       await query(
         `INSERT INTO otp_requests (id, phone, otp_code, purpose, status, expires_at, ip_address, user_agent, device_id)
          VALUES ($1, $2, $3, 'LOGIN', 'PENDING', $4, $5, $6, $7)`,
         [sessionId, phone, hashedOtp, expiresAt, req.ip, req.headers['user-agent'], deviceId]
       );
 
-      logger.info('Development OTP generated', { phone, sessionId, mockOtp });
+       logger.info('Development OTP generated', { phone, sessionId, otp: randomOtp });
     } else {
       // In production: use Firebase Phone Auth
       // Note: Firebase sends OTP directly to user's phone
@@ -84,7 +105,7 @@ export const requestOtp = async (req, res, next) => {
         sessionId,
         expiresIn: config.otp.expirySeconds,
         maskedPhone,
-        ...(config.env === 'development' && { devOtp: '123456' }), // Only in dev
+        ...(devOtp && { devOtp }), // Only in dev
       },
     });
   } catch (error) {
@@ -203,12 +224,16 @@ export const verifyOtp = async (req, res, next) => {
       userAgent: req.headers['user-agent'],
     });
 
+    // Set CSRF token cookie
+    setCSRFToken(req, res, () => {});
+
     res.json({
       success: true,
       data: {
         accessToken: tokens.accessToken,
         refreshToken: tokens.refreshToken,
         expiresIn: tokenService.getExpirySeconds(config.jwt.accessExpiry),
+        csrfToken: req.csrfToken,
         user: {
           id: user.id,
           phone: user.phone,

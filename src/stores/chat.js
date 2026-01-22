@@ -11,6 +11,7 @@ export const useAIChatStore = defineStore('chat', () => {
   const isTyping = ref(false)
   const conversationId = ref(null)
   const error = ref(null)
+  const mode = ref('general') // 'general', 'money-coach', 'loan-assistant'
 
   // Quick actions
   const quickActions = ref([
@@ -44,13 +45,23 @@ export const useAIChatStore = defineStore('chat', () => {
 
   /**
    * Open chat widget
+   * @param {string} chatMode - Chat mode: 'general', 'money-coach', 'loan-assistant'
    */
-  const openChat = () => {
+  const openChat = (chatMode = 'general') => {
+    mode.value = chatMode
     isOpen.value = true
     // Initialize with welcome message if empty
     if (messages.value.length === 0) {
       initializeChat()
     }
+  }
+
+  /**
+   * Set chat mode
+   * @param {string} newMode - New chat mode
+   */
+  const setMode = (newMode) => {
+    mode.value = newMode
   }
 
   /**
@@ -115,31 +126,42 @@ export const useAIChatStore = defineStore('chat', () => {
     error.value = null
 
     try {
-      // Get AI response via service
-      const response = await geminiService.sendMessage(messageText, {
+      // Get AI response via service based on mode
+      let response;
+      
+      // General chat
+      response = await geminiService.sendMessage(messageText, {
         conversationId: conversationId.value,
         userId: useAuthStore().user?.id,
-      })
+        mode: mode.value,
+      });
 
-      // Handle response
+      // Handle response (normalize different response formats)
+      let responseData;
       if (response.success) {
-        const aiMessage = {
-          id: generateMessageId(),
-          role: 'assistant',
-          text: response.data.text,
-          timestamp: new Date(),
-          time: formatTime(new Date()),
-          metadata: response.data.metadata || {},
-        }
-
-        messages.value.push(aiMessage)
-
-        // Update conversation ID if provided
-        if (response.data.conversationId) {
-          conversationId.value = response.data.conversationId
-        }
+        responseData = response.data;
+      } else if (response.data) {
+        // Money coach/loan assistant format
+        responseData = response.data;
       } else {
-        throw new Error(response.error || 'Failed to get response')
+        throw new Error(response.error || 'Failed to get response');
+      }
+
+      const aiMessage = {
+        id: generateMessageId(),
+        role: 'assistant',
+        text: responseData.text || responseData.data?.text || 'ไม่สามารถสร้างคำตอบได้',
+        timestamp: new Date(),
+        time: formatTime(new Date()),
+        metadata: responseData.metadata || responseData.data?.metadata || {},
+      }
+
+      messages.value.push(aiMessage)
+
+      // Update conversation ID if provided
+      const convId = responseData.conversationId || responseData.data?.conversationId;
+      if (convId) {
+        conversationId.value = convId
       }
     } catch (err) {
       console.error('Chat error:', err)
@@ -244,6 +266,7 @@ export const useAIChatStore = defineStore('chat', () => {
     conversationId,
     error,
     quickActions,
+    mode,
 
     // Getters
     hasMessages,
@@ -258,5 +281,6 @@ export const useAIChatStore = defineStore('chat', () => {
     clearChat,
     loadHistory,
     initializeChat,
+    setMode,
   }
 })

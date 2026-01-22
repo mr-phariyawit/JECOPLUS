@@ -2,8 +2,20 @@ import app from './app.js';
 import config from './config/index.js';
 import logger from './utils/logger.js';
 import { close as closeDB, healthCheck } from './config/database.js';
+import jobScheduler from './jobs/scheduler.js';
+
+import { validateProductionConfig, validateJWTSecrets } from './config/validate.js';
 
 const PORT = config.port;
+
+// Validate configuration
+try {
+  validateProductionConfig();
+  validateJWTSecrets();
+} catch (error) {
+  logger.error('Configuration validation failed:', error);
+  process.exit(1);
+}
 
 // Start server
 const server = app.listen(PORT, async () => {
@@ -17,6 +29,16 @@ const server = app.listen(PORT, async () => {
     logger.info('Database connected successfully');
   } else {
     logger.error('Database connection failed:', dbHealth.error);
+  }
+
+  // Start scheduled jobs (only in non-test environments)
+  if (process.env.NODE_ENV !== 'test') {
+    try {
+      jobScheduler.start();
+      logger.info('Job scheduler started');
+    } catch (error) {
+      logger.error('Failed to start job scheduler:', error);
+    }
   }
 });
 
@@ -32,6 +54,11 @@ const shutdown = async (signal) => {
     }
 
     try {
+      // Stop scheduled jobs
+      if (jobScheduler.isRunning) {
+        jobScheduler.stop();
+      }
+
       // Close database connections
       await closeDB();
 

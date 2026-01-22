@@ -4,6 +4,7 @@ import { authenticate, requireAdmin } from '../middleware/auth.js';
 import { adminRateLimiter } from '../middleware/rateLimiter.js';
 import { validate, adminSchemas } from '../middleware/validator.js';
 import { requireRole, requirePermission, attachPermissions } from '../middleware/rbac.js';
+import { validateCSRFToken } from '../middleware/csrf.js';
 
 const router = Router();
 
@@ -62,6 +63,7 @@ router.get('/users/:userId', adminController.getUserDetail);
  */
 router.patch(
   '/users/:userId/status',
+  validateCSRFToken,
   validate(adminSchemas.updateUserStatus),
   adminController.updateUserStatus
 );
@@ -92,6 +94,7 @@ router.get('/kyc/:sessionId', adminController.getKycDetail);
 router.post(
   '/kyc/:sessionId/approve',
   requirePermission('kyc:approve'),
+  validateCSRFToken,
   validate(adminSchemas.kycApprove),
   adminController.approveKyc
 );
@@ -104,6 +107,7 @@ router.post(
 router.post(
   '/kyc/:sessionId/reject',
   requirePermission('kyc:reject'),
+  validateCSRFToken,
   validate(adminSchemas.kycReject),
   adminController.rejectKyc
 );
@@ -138,6 +142,7 @@ router.get('/loans/:loanId', adminController.getLoanDetail);
 router.post(
   '/loans/:loanId/approve',
   requirePermission('loans:approve'),
+  validateCSRFToken,
   validate(adminSchemas.loanApprove),
   adminController.approveLoan
 );
@@ -150,6 +155,7 @@ router.post(
 router.post(
   '/loans/:loanId/reject',
   requirePermission('loans:reject'),
+  validateCSRFToken,
   validate(adminSchemas.loanReject),
   adminController.rejectLoan
 );

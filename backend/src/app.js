@@ -2,12 +2,14 @@ import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
 import morgan from 'morgan';
+import cookieParser from 'cookie-parser';
 import { v4 as uuidv4 } from 'uuid';
 
 import config from './config/index.js';
 import logger from './utils/logger.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 import { globalRateLimiter } from './middleware/rateLimiter.js';
+import { getCSRFToken, setCSRFToken } from './middleware/csrf.js';
 
 // Import routes
 import authRoutes from './routes/auth.js';
@@ -23,6 +25,8 @@ import chatRoutes from './routes/chat.js';
 import productRoutes from './routes/products.js';
 import categoryRoutes from './routes/categories.js';
 import orderRoutes from './routes/orders.js';
+import moneyCoachRoutes from './routes/moneyCoach.js';
+import loanAssistantRoutes from './routes/loanAssistant.js';
 
 const app = express();
 
@@ -41,12 +45,35 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'"], // Removed unsafe-inline
       scriptSrc: ["'self'"],
-      imgSrc: ["'self'", 'data:', 'https:'],
+      imgSrc: [
+        "'self'",
+        'data:',
+        'https://storage.googleapis.com', // Specific domain only
+      ],
+      connectSrc: ["'self'"],
+      fontSrc: ["'self'"],
+      objectSrc: ["'none'"],
+      mediaSrc: ["'self'"],
+      frameSrc: ["'none'"],
     },
   },
-  crossOriginEmbedderPolicy: false,
+  crossOriginEmbedderPolicy: true, // Enabled
+  crossOriginOpenerPolicy: { policy: 'same-origin' },
+  crossOriginResourcePolicy: { policy: 'same-origin' },
+  dnsPrefetchControl: { allow: false },
+  frameguard: { action: 'deny' },
+  hidePoweredBy: true,
+  hsts: {
+    maxAge: 31536000, // 1 year
+    includeSubDomains: true,
+    preload: true,
+  },
+  ieNoOpen: true,
+  noSniff: true,
+  referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+  xssFilter: true,
 }));
 
 // CORS
@@ -63,12 +90,15 @@ app.use(cors({
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-ID', 'X-Device-ID'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-ID', 'X-Device-ID', 'X-CSRF-Token'],
 }));
 
-// Body parsing
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+// Cookie parsing (must be before CSRF middleware)
+app.use(cookieParser());
+
+// Body parsing (1MB limit for security, file uploads use multer separately)
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
 // Request logging
 app.use(morgan(config.logging.format, {
@@ -78,6 +108,9 @@ app.use(morgan(config.logging.format, {
 
 // Global rate limiting
 app.use(globalRateLimiter);
+
+// CSRF Token endpoint (should be called after login to get token)
+app.get('/api/v1/csrf-token', getCSRFToken);
 
 // API Routes
 app.use('/api/v1/auth', authRoutes);
@@ -89,6 +122,8 @@ app.use('/api/v1/chat', chatRoutes);
 app.use('/api/v1/products', productRoutes);
 app.use('/api/v1/categories', categoryRoutes);
 app.use('/api/v1/orders', orderRoutes);
+app.use('/api/v1/money-coach', moneyCoachRoutes);
+app.use('/api/v1/loan-assistant', loanAssistantRoutes);
 app.use('/api/v1/health', healthRoutes);
 app.use('/health', healthRoutes);
 

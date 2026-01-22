@@ -17,8 +17,10 @@ const sendMessageSchema = Joi.object({
     'any.required': 'กรุณากรอกข้อความ',
   }),
   conversationId: Joi.string().uuid().optional(),
-  provider: Joi.string().valid('claude', 'gemini').optional(),
+  provider: Joi.string().valid('claude', 'gemini', 'vertex-ai').optional(),
   systemPrompt: Joi.string().max(5000).optional(),
+  mode: Joi.string().valid('general', 'money_coach', 'loan_assistant').optional(),
+  context: Joi.object().optional(),
 });
 
 const createConversationSchema = Joi.object({

@@ -90,6 +90,18 @@ const routes = [
         component: () => import('../views/SupportView.vue')
     },
     {
+        path: '/money-coach',
+        name: 'MoneyCoach',
+        component: () => import('../views/MoneyCoachView.vue'),
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/loan-assistant',
+        name: 'LoanAssistant',
+        component: () => import('../views/LoanAssistantView.vue'),
+        meta: { requiresAuth: true }
+    },
+    {
         path: '/ecosystem',
         name: 'Ecosystem',
         component: () => import('../views/EcosystemView.vue')

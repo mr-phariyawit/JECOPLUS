@@ -26,11 +26,48 @@ export const setTokens = (accessToken, refreshToken) => {
 export const clearTokens = () => {
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(REFRESH_TOKEN_KEY);
+  localStorage.removeItem('csrf_token');
 };
+
+// CSRF Token management
+let csrfToken = null;
+
+export const getCSRFToken = async () => {
+  if (csrfToken) {
+    return csrfToken;
+  }
+
+  try {
+    // Try to get from localStorage first
+    const stored = localStorage.getItem('csrf_token');
+    if (stored) {
+      csrfToken = stored;
+      return csrfToken;
+    }
+
+    // Fetch from server
+    const response = await axios.get(`${API_URL}/csrf-token`, {
+      withCredentials: true, // Important for cookies
+    });
+
+    if (response.data?.csrfToken) {
+      csrfToken = response.data.csrfToken;
+      localStorage.setItem('csrf_token', csrfToken);
+      return csrfToken;
+    }
+  } catch (error) {
+    console.warn('Failed to get CSRF token:', error);
+  }
+
+  return null;
+};
+
+// Initialize CSRF token on app start
+getCSRFToken();
 
 // Request interceptor - add auth header
 api.interceptors.request.use(
-  (config) => {
+  async (config) => {
     const token = getAccessToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -43,6 +80,14 @@ api.interceptors.request.use(
       localStorage.setItem('jecoplus_device_id', deviceId);
     }
     config.headers['X-Device-ID'] = deviceId;
+
+    // Add CSRF token for state-changing requests
+    if (['post', 'put', 'patch', 'delete'].includes(config.method?.toLowerCase())) {
+      const token = await getCSRFToken();
+      if (token) {
+        config.headers['X-CSRF-Token'] = token;
+      }
+    }
 
     return config;
   },

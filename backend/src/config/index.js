@@ -106,8 +106,17 @@ const config = {
 
   // AI Services
   ai: {
-    // Default provider: 'claude' or 'gemini'
-    defaultProvider: process.env.AI_DEFAULT_PROVIDER || 'gemini',
+    // Default provider: 'vertex-ai', 'claude', or 'gemini'
+    // Vertex AI is preferred if configured
+    defaultProvider: process.env.AI_DEFAULT_PROVIDER || 'vertex-ai',
+    
+    // Vertex AI (Google Cloud) Configuration
+    vertexAI: {
+      projectId: process.env.GCP_PROJECT_ID,
+      location: process.env.GCP_LOCATION || 'us-central1',
+      model: process.env.VERTEX_AI_MODEL || 'gemini-1.5-pro',
+      embeddingModel: process.env.VERTEX_EMBEDDING_MODEL || 'text-embedding-004',
+    },
     
     // Claude (Anthropic) Configuration
     claude: {
@@ -119,7 +128,7 @@ const config = {
     // Gemini (Google) Configuration
     gemini: {
       apiKey: process.env.GEMINI_API_KEY,
-      model: process.env.GEMINI_MODEL || 'gemini-1.5-ultra',
+      model: process.env.GEMINI_MODEL || 'gemini-2.0-flash',
       maxTokens: parseInt(process.env.GEMINI_MAX_TOKENS, 10) || 4096,
     },
   },

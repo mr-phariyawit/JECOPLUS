@@ -9,7 +9,7 @@ import * as chatService from '../services/chatService.js';
  */
 export const sendMessage = async (req, res, next) => {
   try {
-    const { message, conversationId, provider, systemPrompt } = req.body;
+    const { message, conversationId, provider, systemPrompt, mode, context } = req.body;
     const userId = req.user.id;
 
     if (!message || !message.trim()) {
@@ -20,6 +20,8 @@ export const sendMessage = async (req, res, next) => {
       conversationId,
       provider,
       systemPrompt,
+      mode,
+      context,
     });
 
     res.json({

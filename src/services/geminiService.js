@@ -18,6 +18,8 @@ export async function sendMessage(message, options = {}) {
       conversationId: options.conversationId,
       provider: options.provider, // 'claude' or 'gemini'
       systemPrompt: options.systemPrompt,
+      mode: options.mode,
+      context: options.context,
     })
     
     return {

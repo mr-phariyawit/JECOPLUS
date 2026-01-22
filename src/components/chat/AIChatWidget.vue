@@ -141,7 +141,20 @@
 import { ref, computed, watch, nextTick, onMounted } from 'vue'
 import { useAIChatStore } from '../../stores/chat'
 
+// Props
+const props = defineProps({
+  mode: {
+    type: String,
+    default: 'general', // 'general', 'money-coach', 'loan-assistant'
+  },
+})
+
 const chatStore = useAIChatStore()
+
+// Set mode when component mounts or prop changes
+watch(() => props.mode, (newMode) => {
+  chatStore.setMode(newMode)
+}, { immediate: true })
 
 // Refs
 const messagesContainer = ref(null)
