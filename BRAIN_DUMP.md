@@ -2,7 +2,7 @@
 
 **Generated:** 2026-01-22
 **Purpose:** Complete context for continuing development
-**Progress:** Phase 1 (100%) + Phase 2 (70%) + Phase 3 (100%) + Phase 4 (100%) = ~73% Total
+**Progress:** Phase 1 (100%) + Phase 2 (100%) + Phase 3 (100%) + Phase 4 (100%) = ~80% Total
 
 ---
 
@@ -346,9 +346,9 @@ activity_logs (id, admin_id, action, entity_type)
 
 ---
 
-## ❌ Not Started (Phases 2, 3, 5)
+## 📦 Phase Status
 
-### Phase 2: Marketplace (70% - Sprints 5-7 Complete)
+### Phase 2: Marketplace (100% - Sprints 5-8 Complete) ✅
 
 **Sprint 5 - Product Catalog (COMPLETE ✅)**:
 
@@ -365,7 +365,7 @@ activity_logs (id, admin_id, action, entity_type)
 - ✅ Image gallery with thumbnails
 - ✅ Product specifications tabs (description, specs, reviews)
 - ✅ Quantity selector with validation
-- ✅ Add to cart & buy now buttons (placeholders)
+- ✅ Add to cart & buy now buttons
 - ✅ Favorite/wishlist toggle
 - ✅ Social share functionality
 - ✅ Related products section
@@ -384,17 +384,31 @@ activity_logs (id, admin_id, action, entity_type)
 - ✅ ProductDetailView cart integration
 - ✅ Responsive cart layout (mobile/desktop)
 
-**Still Missing**:
+**Sprint 8 - Checkout Flow (COMPLETE ✅)**:
 
-- Checkout flow (CheckoutView.vue) - Sprint 8
-- Address management
-- Payment method selection
-- Order creation & tracking
-- OrdersView.vue, OrderDetailView.vue
+- ✅ CheckoutView.vue with multi-step wizard
+- ✅ Step 1: Shipping address form with validation
+- ✅ Step 2: Payment method selection (Wallet, PromptPay, Bank, COD)
+- ✅ Step 3: Order review and confirmation
+- ✅ Order store (Pinia) with order management
+- ✅ Order API (create, list, get, cancel)
+- ✅ Orders database schema (009_orders_schema.sql)
+- ✅ Order service with transaction safety
+- ✅ Stock management (decrement on order, restore on cancel)
+- ✅ Order number generation (ORDyyMMddxxxx)
+- ✅ OrderSuccessView.vue with order details
+- ✅ Payment instructions for different methods
+
+**Optional Future Enhancements**:
+
+- OrdersView.vue (order history list)
+- OrderDetailView.vue (single order tracking)
 - Promotion/coupon system
+- Wishlist/favorites persistence
+- Product reviews and ratings
 
 **Estimated**: 4 sprints (Sprints 5-8), 99 story points
-**Completed**: Sprints 5-7 (69 points, 70%)
+**Completed**: All 4 sprints (99 points, 100%)
 
 ### Phase 3: AI & Chat (0%)
 
