@@ -218,6 +218,24 @@ const routes = [
         meta: { hideNavBar: true, requiresAuth: true }
     },
     // ============================================
+    // Marketplace Routes
+    // ============================================
+    {
+        path: '/marketplace',
+        name: 'Marketplace',
+        component: () => import('../views/MarketplaceView.vue')
+    },
+    {
+        path: '/marketplace/product/:productId',
+        name: 'ProductDetail',
+        component: () => import('../views/ProductDetailView.vue')
+    },
+    {
+        path: '/cart',
+        name: 'Cart',
+        component: () => import('../views/CartView.vue')
+    },
+    // ============================================
     // Admin Routes
     // ============================================
     {
