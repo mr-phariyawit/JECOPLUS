@@ -1,7 +1,6 @@
 import walletService from '../services/walletService.js';
-import { handleResponse } from '../utils/helpers.js'; // Assuming helpers exist, or standard res.json
 
-// Standard response helper if not imported
+// Standard response helper
 const sendResponse = (res, data, message = 'Success') => {
   res.status(200).json({
     status: 'success',
