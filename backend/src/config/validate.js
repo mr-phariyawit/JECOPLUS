@@ -107,12 +107,65 @@ export const validateDatabaseConfig = () => {
 };
 
 /**
+ * Validate security configuration
+ * Checks for common security misconfigurations
+ */
+export const validateSecurityConfig = () => {
+  const warnings = [];
+  const errors = [];
+
+  // Check demo mode in production/staging
+  if (config.env === 'production' && config.demo.enabled) {
+    errors.push('❌ CRITICAL: Demo mode is ENABLED in production!');
+  }
+
+  if (config.env === 'staging' && config.demo.enabled) {
+    warnings.push('⚠️  Demo mode is enabled in staging');
+  }
+
+  // Check CORS configuration
+  if (config.env === 'production' && config.cors.origins.includes('*')) {
+    errors.push('❌ CRITICAL: CORS wildcard (*) not allowed in production!');
+  }
+
+  // Check if using default secrets
+  if (config.jwt.accessSecret === 'your-access-secret-key-min-32-chars') {
+    errors.push('❌ CRITICAL: Using default JWT access secret!');
+  }
+
+  if (config.jwt.refreshSecret === 'your-refresh-secret-key-min-32-chars') {
+    errors.push('❌ CRITICAL: Using default JWT refresh secret!');
+  }
+
+  // Log warnings
+  warnings.forEach(warning => logger.warn(warning));
+
+  // Throw errors in production/staging
+  if (errors.length > 0) {
+    const errorMessage = errors.join('\n');
+    if (config.env === 'production' || config.env === 'staging') {
+      throw new Error(`\n${errorMessage}\n`);
+    } else {
+      // Just warn in development
+      errors.forEach(error => logger.warn(error));
+    }
+  }
+
+  if (warnings.length === 0 && errors.length === 0) {
+    logger.info('Security configuration validated');
+  }
+
+  return { warnings, errors };
+};
+
+/**
  * Validate all configuration
  */
 export const validateAll = () => {
   try {
     validateProductionConfig();
     validateJWTSecrets();
+    validateSecurityConfig();
     validateAIConfig();
     validateDatabaseConfig();
     logger.info('All configuration validated successfully');
@@ -126,6 +179,7 @@ export const validateAll = () => {
 export default {
   validateProductionConfig,
   validateJWTSecrets,
+  validateSecurityConfig,
   validateAIConfig,
   validateDatabaseConfig,
   validateAll,

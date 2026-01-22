@@ -157,6 +157,25 @@ if (config.env === 'production') {
       throw new Error(`Missing required config: ${key}`);
     }
   }
+
+  // CRITICAL: Demo mode must NEVER be enabled in production
+  if (config.demo.enabled) {
+    throw new Error(
+      '❌ FATAL: Demo mode is ENABLED in production environment! ' +
+      'This is a critical security risk. Set DEMO_MODE=false or remove the variable.'
+    );
+  }
+}
+
+// Validate staging environment
+if (config.env === 'staging') {
+  // Demo mode should be disabled in staging too
+  if (config.demo.enabled) {
+    console.warn(
+      '⚠️  WARNING: Demo mode is enabled in staging environment. ' +
+      'This should only be used for testing purposes.'
+    );
+  }
 }
 
 export default config;

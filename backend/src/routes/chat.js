@@ -6,10 +6,8 @@ import Joi from 'joi';
 
 const router = express.Router();
 
-// ⚠️⚠️⚠️ SECURITY DISABLED FOR TESTING - DO NOT USE IN PRODUCTION ⚠️⚠️⚠️
 // All routes require authentication
-// router.use(authenticate); // TEMPORARILY DISABLED
-// ⚠️⚠️⚠️ RE-ENABLE AUTHENTICATION BEFORE DEPLOYING ⚠️⚠️⚠️
+router.use(authenticate);
 
 // Validation schemas
 const sendMessageSchema = Joi.object({

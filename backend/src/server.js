@@ -4,7 +4,7 @@ import logger from './utils/logger.js';
 import { close as closeDB, healthCheck } from './config/database.js';
 import jobScheduler from './jobs/scheduler.js';
 
-import { validateProductionConfig, validateJWTSecrets } from './config/validate.js';
+import { validateProductionConfig, validateJWTSecrets, validateSecurityConfig } from './config/validate.js';
 
 const PORT = config.port;
 
@@ -12,6 +12,7 @@ const PORT = config.port;
 try {
   validateProductionConfig();
   validateJWTSecrets();
+  validateSecurityConfig();
 } catch (error) {
   logger.error('Configuration validation failed:', error);
   process.exit(1);
