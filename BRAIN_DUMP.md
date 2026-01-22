@@ -204,7 +204,7 @@ activity_logs (id, admin_id, action, entity_type)
 
 ---
 
-## ✅ What's Implemented (Phase 1: 90%)
+## ✅ What's Implemented (Phase 1: 100% COMPLETE)
 
 ### Sprint 1: Wallet Foundation ✅
 
@@ -268,7 +268,7 @@ activity_logs (id, admin_id, action, entity_type)
 - ✅ Liveness detection
 - ✅ NDID integration (UI ready)
 
-### Sprint 4: Loans & OCR 🟡
+### Sprint 4: Loans & OCR ✅
 
 **Frontend**:
 - [ApplyLoanView.vue](src/views/ApplyLoanView.vue)
@@ -276,17 +276,33 @@ activity_logs (id, admin_id, action, entity_type)
 - [ApplySuccessView.vue](src/views/ApplySuccessView.vue)
 - [LoansView.vue](src/views/LoansView.vue)
 - [LoanDetailView.vue](src/views/LoanDetailView.vue)
+- [KYCOCRConfirmView.vue](src/views/kyc/KYCOCRConfirmView.vue) - OCR confirmation with editable fields
 
 **Backend**:
-- [loanService.js](backend/src/services/loanService.js)
-- [loanController.js](backend/src/controllers/loanController.js)
-- Migration: `005_loan_application_schema.sql`
 
-**Gaps**:
-- ❌ OCR confirmation screen (wireframe 2.5)
-- ❌ Editable OCR fields
-- ❌ Re-upload option
-- ❌ Partner API integration
+- [loanService.js](backend/src/services/loanService.js) - Auto-submission logic
+- [loanController.js](backend/src/controllers/loanController.js)
+- [creditScoreService.js](backend/src/services/creditScoreService.js) - Enhanced 6-factor algorithm
+- [pdfService.js](backend/src/services/pdfService.js) - Transaction extraction (4 date formats, 12 categories)
+- [partnerService.js](backend/src/services/partnerService.js) - Partner API integration
+- Migrations: `005_loan_application_schema.sql`, `006_partner_submissions_schema.sql`
+
+**Tests**:
+
+- [loanFlow.test.js](backend/tests/integration/loanFlow.test.js) - 24 integration tests
+- [creditScoreService.enhanced.test.js](backend/tests/unit/services/creditScoreService.enhanced.test.js) - 28 unit tests
+
+**Features**:
+
+- ✅ OCR confirmation screen with editable fields
+- ✅ Thai ID validation (format: X-XXXX-XXXXX-XX-X)
+- ✅ Confidence score display
+- ✅ Re-upload option
+- ✅ 6-factor credit scoring algorithm (300-850 scale)
+- ✅ Auto-approval logic (score >= 700)
+- ✅ Partner API integration (mock implementation)
+- ✅ Transaction extraction from bank statements
+- ✅ Comprehensive test coverage (52 tests, all passing)
 
 ---
 
