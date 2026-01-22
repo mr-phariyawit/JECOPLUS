@@ -19,6 +19,7 @@ import creditScoreRoutes from './routes/creditScore.js';
 import loanRoutes from './routes/loan.js';
 import adminRoutes from './routes/admin.js';
 import healthRoutes from './routes/health.js';
+import chatRoutes from './routes/chat.js';
 
 const app = express();
 
@@ -81,6 +82,7 @@ app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/kyc', kycRoutes);
 app.use('/api/v1/wallet', walletRoutes);
 app.use('/api/v1/admin', adminRoutes);
+app.use('/api/v1/chat', chatRoutes);
 app.use('/api/v1/health', healthRoutes);
 app.use('/health', healthRoutes);
 

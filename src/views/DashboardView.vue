@@ -130,7 +130,7 @@
           </div>
           <span>จ่ายบิล/บริการ</span>
         </button>
-        <button class="action-item" @click="$router.push('/support')">
+        <button class="action-item" @click="openChat">
           <div class="action-item__icon action-item__icon--support">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
               <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
@@ -215,10 +215,12 @@ import { useLoansStore } from '../stores/loans'
 import { formatCurrency, formatDate, notifications } from '../services/mockData'
 import JCard from '../components/base/JCard.vue'
 import JBadge from '../components/base/JBadge.vue'
+import { useAIChatStore } from '../stores/chat'
 
 const router = useRouter()
 const authStore = useAuthStore()
 const loansStore = useLoansStore()
+const chatStore = useAIChatStore()
 
 const unreadCount = computed(() => {
   return notifications.filter(n => !n.read).length
@@ -240,6 +242,10 @@ const goToLoan = (loanId) => {
 
 const goToNotifications = () => {
   router.push('/notifications')
+}
+
+const openChat = () => {
+  chatStore.openChat()
 }
 
 onMounted(() => {

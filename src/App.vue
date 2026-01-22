@@ -6,6 +6,9 @@
       </transition>
     </router-view>
     <JNavBar v-if="!hideNavBar" />
+    <!-- AI Chat Widget (Universal) -->
+    <AIChatWidget />
+    <AIChatFAB />
   </div>
 </template>
 
@@ -13,6 +16,8 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import JNavBar from './components/layout/JNavBar.vue'
+import AIChatWidget from './components/chat/AIChatWidget.vue'
+import AIChatFAB from './components/chat/AIChatFAB.vue'
 
 const route = useRoute()
 

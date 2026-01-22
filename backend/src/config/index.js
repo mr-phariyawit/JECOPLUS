@@ -103,6 +103,26 @@ const config = {
     level: process.env.LOG_LEVEL || 'debug',
     format: process.env.LOG_FORMAT || 'dev',
   },
+
+  // AI Services
+  ai: {
+    // Default provider: 'claude' or 'gemini'
+    defaultProvider: process.env.AI_DEFAULT_PROVIDER || 'gemini',
+    
+    // Claude (Anthropic) Configuration
+    claude: {
+      apiKey: process.env.ANTHROPIC_API_KEY,
+      model: process.env.CLAUDE_MODEL || 'claude-3-5-sonnet-20241022',
+      maxTokens: parseInt(process.env.CLAUDE_MAX_TOKENS, 10) || 4096,
+    },
+    
+    // Gemini (Google) Configuration
+    gemini: {
+      apiKey: process.env.GEMINI_API_KEY,
+      model: process.env.GEMINI_MODEL || 'gemini-1.5-ultra',
+      maxTokens: parseInt(process.env.GEMINI_MAX_TOKENS, 10) || 4096,
+    },
+  },
 };
 
 // Validate required config in production
