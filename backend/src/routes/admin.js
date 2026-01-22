@@ -3,6 +3,7 @@ import * as adminController from '../controllers/adminController.js';
 import { authenticate, requireAdmin } from '../middleware/auth.js';
 import { adminRateLimiter } from '../middleware/rateLimiter.js';
 import { validate, adminSchemas } from '../middleware/validator.js';
+import { requireRole, requirePermission, attachPermissions } from '../middleware/rbac.js';
 
 const router = Router();
 
@@ -19,7 +20,7 @@ router.post(
 );
 
 // All routes below require admin authentication
-router.use(authenticate, requireAdmin, adminRateLimiter);
+router.use(authenticate, requireAdmin, attachPermissions, adminRateLimiter);
 
 // =====================================================
 // DASHBOARD
@@ -90,6 +91,7 @@ router.get('/kyc/:sessionId', adminController.getKycDetail);
  */
 router.post(
   '/kyc/:sessionId/approve',
+  requirePermission('kyc:approve'),
   validate(adminSchemas.kycApprove),
   adminController.approveKyc
 );
@@ -101,6 +103,7 @@ router.post(
  */
 router.post(
   '/kyc/:sessionId/reject',
+  requirePermission('kyc:reject'),
   validate(adminSchemas.kycReject),
   adminController.rejectKyc
 );
@@ -134,6 +137,7 @@ router.get('/loans/:loanId', adminController.getLoanDetail);
  */
 router.post(
   '/loans/:loanId/approve',
+  requirePermission('loans:approve'),
   validate(adminSchemas.loanApprove),
   adminController.approveLoan
 );
@@ -145,6 +149,7 @@ router.post(
  */
 router.post(
   '/loans/:loanId/reject',
+  requirePermission('loans:reject'),
   validate(adminSchemas.loanReject),
   adminController.rejectLoan
 );

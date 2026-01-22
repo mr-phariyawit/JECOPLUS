@@ -5,7 +5,7 @@ const ADMIN_TOKEN_KEY = 'jecoplus_admin_token';
 const ADMIN_REFRESH_TOKEN_KEY = 'jecoplus_admin_refresh_token';
 
 // Mock mode - set to true for demo without backend
-const MOCK_MODE = true;
+const MOCK_MODE = false;
 
 /**
  * Get stored admin token
