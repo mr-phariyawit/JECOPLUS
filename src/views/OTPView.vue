@@ -120,9 +120,22 @@ const handlePaste = (event) => {
 }
 
 const resendOTP = async () => {
-  countdown.value = 60
-  startCountdown()
-  await authStore.sendOTP(authStore.phone)
+  const result = await authStore.sendOTP(authStore.phone)
+
+  if (result.success) {
+    countdown.value = 60
+    startCountdown()
+    error.value = ''
+    otpDigits.value = ['', '', '', '', '', '']
+    otpInputs.value[0]?.focus()
+
+    // Show dev OTP hint in console (development only)
+    if (result.devOtp) {
+      console.log(`[DEV] New OTP: ${result.devOtp}`)
+    }
+  } else {
+    error.value = result.error || 'ไม่สามารถส่ง OTP ใหม่ได้'
+  }
 }
 
 const startCountdown = () => {

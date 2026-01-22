@@ -74,10 +74,19 @@ const handleSubmit = async () => {
   isLoading.value = true;
 
   try {
-    await authStore.sendOTP(phone.value);
-    router.push("/otp");
+    const result = await authStore.sendOTP(phone.value);
+
+    if (result.success) {
+      // Show dev OTP hint in console (development only)
+      if (result.devOtp) {
+        console.log(`[DEV] OTP: ${result.devOtp}`);
+      }
+      router.push("/otp");
+    } else {
+      error.value = result.error || "เกิดข้อผิดพลาด กรุณาลองใหม่";
+    }
   } catch (e) {
-    error.value = "เกิดข้อผิดพลาด กรุณาลองใหม่";
+    error.value = "เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่";
   } finally {
     isLoading.value = false;
   }

@@ -30,12 +30,22 @@ body {
 /* === APP CONTAINER (Mobile-first) === */
 #app {
   width: 100%;
-  max-width: 430px;
   min-height: 100vh;
-  margin: 0 auto;
   position: relative;
   overflow-x: hidden;
+}
+
+/* Mobile app wrapper - not applied to admin */
+#app:not(:has(.admin-layout)) {
+  max-width: 430px;
+  margin: 0 auto;
   background: var(--color-white);
+}
+
+/* Admin panel - full width */
+#app:has(.admin-layout) {
+  max-width: none;
+  background: var(--color-gray-1);
 }
 
 /* === TYPOGRAPHY UTILITIES === */

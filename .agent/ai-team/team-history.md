@@ -8,16 +8,26 @@
 
 ## 📅 Sessions
 
-_No sessions yet. Start with /team-start_
+### Session 1: Login & eKYC Testing (Completed)
+**Date:** 2026-01-22
+**Focus:** Implement and run test suite for Login & eKYC (`specs/test-suite-login-ekyc.md`)
+**Roles:** QA (Testing), BE (Backend), FE (Frontend)
+**Status:** **DONE**
+- **Backend Unit Tests:** ✅ Completed (25/25 passed) - Fixed `tokenService`, mocked `firebaseService`.
+- **Frontend Unit Tests:** ✅ Completed (9/9 passed) - Stores (Auth, KYC) verified with Vitest.
+- **Integration Tests:** ⏸️ Skipped (Requires DB/Docker setup).
 
 ---
 
 ## 👤 Human Decisions
 
-_None yet_
+- **2026-01-22**: Resume testing to fix issues.
+- **2026-01-22**: Proceed with Frontend testing.
 
 ---
 
 ## 🎓 Learnings
 
-_To be discovered_
+- Backend `tokenService` throws custom `ApiError` code objects, not simple strings.
+- Frontend testing requires `vitest.config.js` to explicitly exclude backend test folders to avoid checking Jest files.
+- Alias `@` in Vitest Config helps in resolving source files correctly.

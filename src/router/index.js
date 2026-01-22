@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useAdminStore } from '../stores/admin'
 
 const routes = [
     {
@@ -117,6 +118,43 @@ const routes = [
         component: () => import('../views/BillPaymentView.vue'),
         meta: { hideNavBar: true }
     },
+    // Wallet Routes
+    {
+        path: '/wallet',
+        name: 'Wallet',
+        component: () => import('../views/WalletView.vue'),
+        meta: { hideNavBar: true }
+    },
+    {
+        path: '/wallet/topup',
+        name: 'WalletTopUp',
+        component: () => import('../views/TopUpView.vue'),
+        meta: { hideNavBar: true }
+    },
+    {
+        path: '/wallet/withdraw',
+      name: 'withdraw',
+      component: () => import('../views/WalletWithdrawView.vue'),
+      meta: { hideNavBar: true }
+    },
+    {
+      path: '/wallet/banks',
+      name: 'banks',
+      component: () => import('../views/BankAccountView.vue'),
+      meta: { hideNavBar: true }
+    },
+    {
+      path: '/loan/statement-upload',
+      name: 'statement-upload',
+      component: () => import('../views/BankStatementUploadView.vue'),
+      meta: { hideNavBar: true }
+    },
+    {
+      path: '/loan/score',
+      name: 'credit-score',
+      component: () => import('../views/CreditScoreResultView.vue'),
+      meta: { hideNavBar: true }
+    },
     // New AI & Demo Routes
     {
         path: '/ai-scoring',
@@ -135,12 +173,127 @@ const routes = [
         name: 'SystemArchitecture',
         component: () => import('../views/SystemArchitectureView.vue'),
         meta: { hideNavBar: true }
+    },
+    // KYC Routes
+    {
+        path: '/kyc',
+        name: 'KYC',
+        component: () => import('../views/kyc/KYCStartView.vue'),
+        meta: { hideNavBar: true, requiresAuth: true }
+    },
+    {
+        path: '/kyc/id-card',
+        name: 'KYCIDCard',
+        component: () => import('../views/kyc/KYCIDCardView.vue'),
+        meta: { hideNavBar: true, requiresAuth: true }
+    },
+    {
+        path: '/kyc/selfie',
+        name: 'KYCSelfie',
+        component: () => import('../views/kyc/KYCSelfieView.vue'),
+        meta: { hideNavBar: true, requiresAuth: true }
+    },
+    {
+        path: '/kyc/liveness',
+        name: 'KYCLiveness',
+        component: () => import('../views/kyc/KYCLivenessView.vue'),
+        meta: { hideNavBar: true, requiresAuth: true }
+    },
+    {
+        path: '/kyc/ndid',
+        name: 'KYCNDID',
+        component: () => import('../views/kyc/KYCNDIDView.vue'),
+        meta: { hideNavBar: true, requiresAuth: true }
+    },
+    {
+        path: '/kyc/result/:status',
+        name: 'KYCResult',
+        component: () => import('../views/kyc/KYCResultView.vue'),
+        meta: { hideNavBar: true, requiresAuth: true }
+    },
+    // ============================================
+    // Admin Routes
+    // ============================================
+    {
+        path: '/admin/login',
+        name: 'AdminLogin',
+        component: () => import('../views/admin/AdminLoginView.vue'),
+        meta: { isAdmin: true, requiresAdminAuth: false, hideNavBar: true }
+    },
+    {
+        path: '/admin',
+        component: () => import('../components/admin/AdminLayout.vue'),
+        meta: { isAdmin: true, requiresAdminAuth: true, hideNavBar: true },
+        children: [
+            {
+                path: '',
+                name: 'AdminDashboard',
+                component: () => import('../views/admin/AdminDashboardView.vue')
+            },
+            {
+                path: 'users',
+                name: 'AdminUsers',
+                component: () => import('../views/admin/AdminUsersView.vue')
+            },
+            {
+                path: 'users/:userId',
+                name: 'AdminUserDetail',
+                component: () => import('../views/admin/AdminUserDetailView.vue')
+            },
+            {
+                path: 'kyc',
+                name: 'AdminKYC',
+                component: () => import('../views/admin/AdminKYCListView.vue')
+            },
+            {
+                path: 'kyc/:sessionId',
+                name: 'AdminKYCReview',
+                component: () => import('../views/admin/AdminKYCReviewView.vue')
+            },
+            {
+                path: 'logs',
+                name: 'AdminLogs',
+                component: () => import('../views/admin/AdminActivityLogsView.vue')
+            }
+        ]
     }
 ]
 
 const router = createRouter({
     history: createWebHistory(),
     routes
+})
+
+// Navigation guard for admin routes
+router.beforeEach((to, from, next) => {
+    // Check if route requires admin auth
+    if (to.meta.requiresAdminAuth) {
+        const adminStore = useAdminStore()
+
+        // Initialize admin session if not already done
+        if (!adminStore.isAuthenticated) {
+            adminStore.initSession()
+        }
+
+        // If still not authenticated, redirect to admin login
+        if (!adminStore.isAuthenticated) {
+            next({ name: 'AdminLogin', query: { redirect: to.fullPath } })
+            return
+        }
+    }
+
+    // If already logged in as admin and trying to access login page
+    if (to.name === 'AdminLogin') {
+        const adminStore = useAdminStore()
+        adminStore.initSession()
+
+        if (adminStore.isAuthenticated) {
+            next({ name: 'AdminDashboard' })
+            return
+        }
+    }
+
+    next()
 })
 
 export default router
