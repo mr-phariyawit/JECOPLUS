@@ -1,7 +1,7 @@
 import api, { setTokens, clearTokens, getRefreshToken } from './api.js';
 
-// Mock mode - set to true for demo without backend
-const MOCK_MODE = true;
+// Mock mode - reads from environment variable
+const MOCK_MODE = import.meta.env.VITE_MOCKUP_MODE === 'true';
 
 // Mock OTP sessions storage
 const mockOtpSessions = {};
@@ -154,11 +154,13 @@ export const refreshToken = async () => {
  */
 export const logout = async (allDevices = false) => {
   try {
-    const refresh = getRefreshToken();
-    await api.post('/auth/logout', {
-      refreshToken: refresh,
-      allDevices,
-    });
+    if (!MOCK_MODE) {
+      const refresh = getRefreshToken();
+      await api.post('/auth/logout', {
+        refreshToken: refresh,
+        allDevices,
+      });
+    }
   } catch (error) {
     // Ignore errors during logout
     console.warn('Logout error:', error);

@@ -1,6 +1,10 @@
 <template>
   <button
-    :class="['j-button', `j-button--${variant}`, { 'j-button--disabled': disabled, 'j-button--loading': loading }]"
+    :class="[
+      'j-button',
+      `j-button--${variant}`,
+      { 'j-button--disabled': disabled, 'j-button--loading': loading },
+    ]"
     :disabled="disabled || loading"
     @click="$emit('click', $event)"
   >
@@ -15,20 +19,23 @@
 defineProps({
   variant: {
     type: String,
-    default: 'primary',
-    validator: (v) => ['primary', 'secondary', 'outline', 'ghost', 'black'].includes(v)
+    default: "primary",
+    validator: (v) =>
+      ["primary", "secondary", "outline", "ghost", "black", "danger"].includes(
+        v,
+      ),
   },
   disabled: {
     type: Boolean,
-    default: false
+    default: false,
   },
   loading: {
     type: Boolean,
-    default: false
-  }
-})
+    default: false,
+  },
+});
 
-defineEmits(['click'])
+defineEmits(["click"]);
 </script>
 
 <style scoped>
@@ -57,7 +64,7 @@ defineEmits(['click'])
 }
 
 .j-button--primary:hover:not(:disabled) {
-  background: #C9000D;
+  background: #c9000d;
   transform: translateY(-1px);
   box-shadow: var(--shadow-md);
 }
@@ -111,6 +118,17 @@ defineEmits(['click'])
   color: var(--color-black);
 }
 
+/* Danger - Red for destructive actions */
+.j-button--danger {
+  background: var(--color-red);
+  color: var(--color-white);
+}
+
+.j-button--danger:hover:not(:disabled) {
+  background: #c9000d;
+  transform: translateY(-1px);
+}
+
 /* Disabled */
 .j-button--disabled {
   background: var(--color-gray-2);
@@ -135,6 +153,8 @@ defineEmits(['click'])
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 </style>

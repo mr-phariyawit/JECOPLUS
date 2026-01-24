@@ -123,24 +123,76 @@
     </section>
 
     <div class="profile__logout">
-      <JButton variant="outline" @click="logout"> ออกจากระบบ </JButton>
+      <JButton variant="outline" @click="showLogoutModal = true">
+        ออกจากระบบ
+      </JButton>
     </div>
 
     <p class="profile__version text-mini">JECO+ v1.0.0</p>
+
+    <!-- Logout Confirmation Modal -->
+    <JModal
+      v-model="showLogoutModal"
+      title="ออกจากระบบ"
+      size="small"
+      confirmText="ออกจากระบบ"
+      cancelText="ยกเลิก"
+      confirmVariant="danger"
+      :loading="isLoggingOut"
+      @confirm="handleLogout"
+    >
+      <div class="logout-modal__content">
+        <svg
+          class="logout-modal__icon"
+          width="48"
+          height="48"
+          viewBox="0 0 24 24"
+          fill="none"
+        >
+          <path
+            d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+          />
+          <polyline
+            points="16,17 21,12 16,7"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <line
+            x1="21"
+            y1="12"
+            x2="9"
+            y2="12"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+          />
+        </svg>
+        <p>คุณต้องการออกจากระบบหรือไม่?</p>
+      </div>
+    </JModal>
   </div>
 </template>
 
 <script setup>
-import { computed } from "vue";
+import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "../stores/auth";
 import JHeader from "../components/layout/JHeader.vue";
 import JCard from "../components/base/JCard.vue";
 import JBadge from "../components/base/JBadge.vue";
 import JButton from "../components/base/JButton.vue";
+import JModal from "../components/base/JModal.vue";
 
 const router = useRouter();
 const authStore = useAuthStore();
+
+const showLogoutModal = ref(false);
+const isLoggingOut = ref(false);
 
 const initials = computed(() => {
   const name = authStore.fullName;
@@ -152,10 +204,14 @@ const initials = computed(() => {
     .slice(0, 2);
 });
 
-const logout = () => {
-  if (confirm("ต้องการออกจากระบบ?")) {
-    authStore.logout();
+const handleLogout = async () => {
+  isLoggingOut.value = true;
+  try {
+    await authStore.logout();
+    showLogoutModal.value = false;
     router.replace("/login");
+  } finally {
+    isLoggingOut.value = false;
   }
 };
 </script>
@@ -256,5 +312,24 @@ const logout = () => {
   text-align: center;
   margin-top: var(--space-lg);
   color: var(--color-gray-3);
+}
+
+/* Logout Modal */
+.logout-modal__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--space-md) 0;
+}
+
+.logout-modal__icon {
+  color: var(--color-red);
+  margin-bottom: var(--space-md);
+}
+
+.logout-modal__content p {
+  color: var(--color-gray-4);
+  font-size: var(--font-size-body);
 }
 </style>
