@@ -131,13 +131,20 @@ const config = {
       model: process.env.GEMINI_MODEL || 'gemini-2.0-flash',
       maxTokens: parseInt(process.env.GEMINI_MAX_TOKENS, 10) || 4096,
     },
+
+    // Circuit Breaker Configuration
+    circuitBreaker: {
+      threshold: parseInt(process.env.AI_CB_THRESHOLD, 10) || 3,
+      timeout: parseInt(process.env.AI_CB_TIMEOUT, 10) || 60000,
+      halfOpenAttempts: parseInt(process.env.AI_CB_HALF_OPEN, 10) || 1,
+    },
   },
 
   // Demo Mode (WARNING: ONLY for presentations - NEVER use in production!)
   demo: {
     enabled: process.env.DEMO_MODE === 'true',
     phone: process.env.DEMO_PHONE || '0999999999',
-    password: process.env.DEMO_PASSWORD || 'demo123',
+    password: process.env.DEMO_PASSWORD,
   },
 };
 

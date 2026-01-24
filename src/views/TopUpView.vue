@@ -34,18 +34,43 @@
 <script setup>
 import JCard from "../components/base/JCard.vue";
 import { useWalletStore } from "../stores/wallet";
+import { useDemoStore } from "../stores/demo";
 import { useRouter } from "vue-router";
 
 const walletStore = useWalletStore();
 const router = useRouter();
 
 const handleMockTopUp = async () => {
-  try {
+  const demoStore = useDemoStore();
+
+  if (demoStore.isDemoMode) {
+    // 10x Polish: Simulate QR Scan & Bank App Switch
+    const btn = document.querySelector(".btn-primary");
+    if (btn) btn.innerText = "กำลังสร้าง QR...";
+
+    await demoStore.simulateDelay(1000);
+    if (btn) btn.innerText = "รอการชำระเงิน...";
+
+    // Simulate "Payment Received" toast
+    await demoStore.simulateDelay(1500);
+
+    // Show confetti (using simple CSS class toggle or just alert for now,
+    // ideally we'd use canvas-confetti but let's stick to standard alert with polish timing)
+
+    // Animate Balance
+    // In a real scenario we'd use a library, but here we just update store
     await walletStore.topUp(1000, "PROMPTPAY");
-    alert("เติมเงินสำเร็จ!");
+
+    alert("✨ เติมเงินสำเร็จ! ฿1,000.00");
     router.go(-1);
-  } catch (e) {
-    alert(e);
+  } else {
+    try {
+      await walletStore.topUp(1000, "PROMPTPAY");
+      alert("เติมเงินสำเร็จ!");
+      router.go(-1);
+    } catch (e) {
+      alert(e);
+    }
   }
 };
 </script>

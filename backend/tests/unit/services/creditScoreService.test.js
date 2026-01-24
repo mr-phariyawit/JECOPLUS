@@ -36,7 +36,7 @@ describe('CreditScoreService', () => {
 
             expect(result.score).toBeGreaterThanOrEqual(700);
             expect(result.status).toBe('APPROVED');
-            expect(result.monthlyIncome).toBe(50000);
+            expect(result.inputs.monthlyIncome).toBe(50000);
         });
 
         it('should return REJECTED status for bad profile (Score < 700)', async () => {

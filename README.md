@@ -24,6 +24,7 @@ A Thai financial services super-app combining digital wallet, AI-powered loans, 
 ## Tech Stack
 
 ### Frontend
+
 - Vue 3 (Composition API)
 - Vite 7
 - Pinia (State Management)
@@ -32,6 +33,7 @@ A Thai financial services super-app combining digital wallet, AI-powered loans, 
 - Axios
 
 ### Backend
+
 - Node.js / Express 4
 - PostgreSQL
 - Firebase Admin SDK
@@ -42,6 +44,7 @@ A Thai financial services super-app combining digital wallet, AI-powered loans, 
 ## Getting Started
 
 ### Prerequisites
+
 - Node.js >= 20.0.0
 - PostgreSQL
 - Firebase project configured
@@ -61,6 +64,45 @@ npm run dev
 ```
 
 The app will be available at `http://localhost:5173`
+
+### 🔄 Mock vs Real API Mode
+
+The frontend supports two modes:
+
+**1. Real API Mode** (Default - Production)
+
+```bash
+# Frontend uses real backend API
+VITE_MOCKUP_MODE=false
+VITE_API_URL=http://localhost:3002/api/v1
+```
+
+**2. Mock Data Mode** (Development)
+
+```bash
+# Frontend uses mock data without backend
+VITE_MOCKUP_MODE=true
+```
+
+**Quick Switch:**
+
+```bash
+# Use Real Backend
+echo "VITE_MOCKUP_MODE=false" > .env.local
+npm run dev
+
+# Use Mock Data
+echo "VITE_MOCKUP_MODE=true" > .env.local
+npm run dev
+```
+
+**Test Connection:**
+
+```bash
+./test-real-api.sh
+```
+
+📖 **Full Guide:** [QUICK_START_REAL_API.md](QUICK_START_REAL_API.md) | [Switching Modes Guide](docs/guides/SWITCHING_MODES.md)
 
 ### Backend Setup
 
@@ -99,17 +141,19 @@ Default admin credentials:
 
 ## 📋 Scripts
 
-### Frontend
+### Frontend Scripts
+
 | Command | Description |
-|---------|-------------|
+| :--- | :--- |
 | `npm run dev` | Start development server |
 | `npm run build` | Build for production |
 | `npm run preview` | Preview production build |
 | `npm run test:unit` | Run unit tests |
 
-### Backend
+### Backend Scripts
+
 | Command | Description |
-|---------|-------------|
+| :--- | :--- |
 | `npm run dev` | Start with hot reload |
 | `npm start` | Start production server |
 | `npm run migrate:up` | Run database migrations |
@@ -119,7 +163,7 @@ Default admin credentials:
 
 ## Project Structure
 
-```
+```text
 JECOPLUS/
 ├── backend/
 │   ├── src/
@@ -331,6 +375,13 @@ cd backend && node scripts/create-admin.js
 - [Implementation Plan](specs/06_Implementation_Plan.md)
 - [Security Hardening](specs/SECURITY_HARDENING.md)
 - [GAP Analysis](specs/features/GAP_ANALYSIS.md)
+
+### Detailed Documentation
+- [AI Documentation](docs/ai/)
+- [Guides](docs/guides/)
+- [Reports](docs/reports/)
+- [Scenarios](docs/scenarios/README.md)
+- [Technical Docs](docs/technical/)
 
 ## 🤝 Contributing
 

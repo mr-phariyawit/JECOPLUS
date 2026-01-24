@@ -5,17 +5,53 @@ import config from '../config/index.js';
 /**
  * Gemini AI Service
  * Connects to Google Gemini API (supports Gemini Ultra, Pro, etc.)
+ * Optimized for accuracy and consistency
  */
 class GeminiService {
   constructor() {
     this.client = null;
     this.model = config.ai?.gemini?.model || 'gemini-2.0-flash';
-    
+
     if (config.ai?.gemini?.apiKey) {
       this.client = new GoogleGenerativeAI(config.ai.gemini.apiKey);
     } else {
       logger.warn('Gemini API key not configured. Gemini service will not be available.');
     }
+  }
+
+  /**
+   * Optimal settings for JECO+ AI Chat
+   * Tuned for accuracy, consistency, and safety
+   */
+  static OPTIMAL_SETTINGS = {
+    // Model selection
+    model: 'gemini-2.0-flash', // or 'gemini-1.5-pro' for better quality
+
+    // Generation config (optimized for accuracy)
+    temperature: 0.3,      // Low temperature = more deterministic, accurate responses
+    topP: 0.8,             // Reduced from 0.95 = less randomness
+    topK: 40,              // Limit token selection pool
+    maxOutputTokens: 2048, // Sufficient for most responses
+
+    // Safety settings (strict enforcement)
+    safetySettings: [
+      {
+        category: 'HARM_CATEGORY_HARASSMENT',
+        threshold: 'BLOCK_LOW_AND_ABOVE',
+      },
+      {
+        category: 'HARM_CATEGORY_HATE_SPEECH',
+        threshold: 'BLOCK_LOW_AND_ABOVE',
+      },
+      {
+        category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT',
+        threshold: 'BLOCK_LOW_AND_ABOVE',
+      },
+      {
+        category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
+        threshold: 'BLOCK_MEDIUM_AND_ABOVE',
+      },
+    ],
   }
 
   /**
@@ -39,10 +75,11 @@ class GeminiService {
     }
 
     try {
-      const modelName = options.model || this.model;
-      const genModel = this.client.getGenerativeModel({ 
+      const modelName = options.model || GeminiService.OPTIMAL_SETTINGS.model;
+      const genModel = this.client.getGenerativeModel({
         model: modelName,
         systemInstruction: systemInstruction || undefined,
+        safetySettings: GeminiService.OPTIMAL_SETTINGS.safetySettings,
       });
 
       // Build chat history for Gemini
@@ -52,18 +89,18 @@ class GeminiService {
         parts: [{ text: msg.content }],
       }));
 
-      // Start chat session with history
+      // Start chat session with optimized settings
       const chat = genModel.startChat({
         history: history.length > 0 ? history : undefined,
         generationConfig: {
-          temperature: options.temperature ?? 0.7,
-          maxOutputTokens: options.maxTokens || 4096,
-          topP: options.topP ?? 0.95,
-          topK: options.topK ?? 40,
+          temperature: options.temperature ?? GeminiService.OPTIMAL_SETTINGS.temperature,
+          maxOutputTokens: options.maxTokens || GeminiService.OPTIMAL_SETTINGS.maxOutputTokens,
+          topP: options.topP ?? GeminiService.OPTIMAL_SETTINGS.topP,
+          topK: options.topK ?? GeminiService.OPTIMAL_SETTINGS.topK,
         },
       });
 
-      logger.info(`Gemini API request: model=${modelName}, history=${history.length} messages`);
+      logger.info(`Gemini API request: model=${modelName}, temp=${options.temperature ?? GeminiService.OPTIMAL_SETTINGS.temperature}, history=${history.length} messages`);
 
       const result = await chat.sendMessage(message);
       const response = await result.response;
@@ -83,6 +120,11 @@ class GeminiService {
           totalTokens: usageMetadata?.totalTokenCount || 0,
           provider: 'gemini',
           timestamp: new Date().toISOString(),
+          settings: {
+            temperature: options.temperature ?? GeminiService.OPTIMAL_SETTINGS.temperature,
+            topP: options.topP ?? GeminiService.OPTIMAL_SETTINGS.topP,
+            topK: options.topK ?? GeminiService.OPTIMAL_SETTINGS.topK,
+          },
         },
       };
     } catch (error) {
@@ -105,10 +147,11 @@ class GeminiService {
     }
 
     try {
-      const modelName = options.model || this.model;
-      const genModel = this.client.getGenerativeModel({ 
+      const modelName = options.model || GeminiService.OPTIMAL_SETTINGS.model;
+      const genModel = this.client.getGenerativeModel({
         model: modelName,
         systemInstruction: systemInstruction || undefined,
+        safetySettings: GeminiService.OPTIMAL_SETTINGS.safetySettings,
       });
 
       const history = conversationHistory.map(msg => ({
@@ -119,10 +162,10 @@ class GeminiService {
       const chat = genModel.startChat({
         history: history.length > 0 ? history : undefined,
         generationConfig: {
-          temperature: options.temperature ?? 0.7,
-          maxOutputTokens: options.maxTokens || 4096,
-          topP: options.topP ?? 0.95,
-          topK: options.topK ?? 40,
+          temperature: options.temperature ?? GeminiService.OPTIMAL_SETTINGS.temperature,
+          maxOutputTokens: options.maxTokens || GeminiService.OPTIMAL_SETTINGS.maxOutputTokens,
+          topP: options.topP ?? GeminiService.OPTIMAL_SETTINGS.topP,
+          topK: options.topK ?? GeminiService.OPTIMAL_SETTINGS.topK,
         },
       });
 

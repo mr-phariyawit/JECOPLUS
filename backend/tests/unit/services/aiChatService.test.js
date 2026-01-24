@@ -26,15 +26,36 @@ jest.unstable_mockModule('../../../src/utils/logger.js', () => ({
     info: jest.fn(),
     error: jest.fn(),
     warn: jest.fn(),
+    debug: jest.fn(),
   },
 }));
 
 jest.unstable_mockModule('../../../src/config/index.js', () => ({
   default: {
+    env: 'test',
+    db: {
+      host: 'localhost',
+      port: 5432,
+      name: 'test',
+      user: 'test',
+      password: 'test'
+    },
     ai: {
       defaultProvider: 'gemini',
+      circuitBreaker: {
+        threshold: 5,
+        timeout: 60000,
+        halfOpenAttempts: 2
+      }
     },
   },
+}));
+
+// Mock database to prevent connection issues
+jest.unstable_mockModule('../../../src/config/database.js', () => ({
+  query: jest.fn(),
+  pool: { on: jest.fn(), connect: jest.fn() },
+  default: { on: jest.fn() }
 }));
 
 const { default: aiChatService } = await import('../../../src/services/aiChatService.js');

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Admin Loans API</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .result { margin: 20px 0; padding: 10px; background: #f5f5f5; border-radius: 5px; }
+        .error { background: #fee; color: #c00; }
+        .success { background: #efe; color: #060; }
+        pre { overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>Test Admin Loans API</h1>
+
+    <div>
+        <h2>1. Login</h2>
+        <button onclick="testLogin()">Test Login</button>
+        <div id="loginResult" class="result"></div>
+    </div>
+
+    <div>
+        <h2>2. Fetch Loans</h2>
+        <button onclick="testLoans()">Test Loans API</button>
+        <div id="loansResult" class="result"></div>
+    </div>
+
+    <script>
+        let adminToken = null;
+
+        async function testLogin() {
+            const resultDiv = document.getElementById('loginResult');
+            resultDiv.textContent = 'Loading...';
+
+            try {
+                const response = await fetch('http://localhost:3002/api/v1/admin/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: 'admin@jecoplus.com',
+                        password: 'admin123'
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    adminToken = data.data.accessToken;
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `<strong>✅ Login Success!</strong><br>Token: ${adminToken.substring(0, 50)}...`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = `❌ Login failed: ${JSON.stringify(data)}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Error: ${error.message}`;
+            }
+        }
+
+        async function testLoans() {
+            const resultDiv = document.getElementById('loansResult');
+
+            if (!adminToken) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = '❌ Please login first!';
+                return;
+            }
+
+            resultDiv.textContent = 'Loading...';
+
+            try {
+                const response = await fetch('http://localhost:3002/api/v1/admin/loans?page=1&limit=20', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${adminToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `
+                        <strong>✅ Loans Loaded Successfully!</strong><br>
+                        Total: ${data.data.pagination.total}<br>
+                        Pending: ${data.data.stats.pending}<br>
+                        <pre>${JSON.stringify(data.data.loans[0], null, 2)}</pre>
+                    `;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = `❌ Failed: ${JSON.stringify(data)}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Error: ${error.message}`;
+                console.error('Full error:', error);
+            }
+        }
+
+        // Auto test on load
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('Page loaded. Run testLogin() then testLoans()');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JECOPLUS - Demo Login Test</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      padding: 40px;
+      max-width: 500px;
+      width: 100%;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .header h1 {
+      color: #333;
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    .warning {
+      background: #fff3cd;
+      border: 2px solid #ffc107;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 20px;
+      color: #856404;
+      font-size: 14px;
+      text-align: center;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #333;
+      font-weight: 500;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 16px;
+      transition: all 0.3s;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .result {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 10px;
+      display: none;
+    }
+
+    .result.success {
+      background: #d4edda;
+      border: 2px solid #28a745;
+      color: #155724;
+    }
+
+    .result.error {
+      background: #f8d7da;
+      border: 2px solid #dc3545;
+      color: #721c24;
+    }
+
+    .result h3 {
+      margin-bottom: 10px;
+    }
+
+    .result pre {
+      background: rgba(0, 0, 0, 0.05);
+      padding: 10px;
+      border-radius: 5px;
+      overflow-x: auto;
+      font-size: 12px;
+      margin-top: 10px;
+    }
+
+    .token {
+      word-break: break-all;
+      background: rgba(0, 0, 0, 0.05);
+      padding: 10px;
+      border-radius: 5px;
+      font-family: monospace;
+      font-size: 12px;
+      margin-top: 10px;
+    }
+
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🎭 JECOPLUS Demo Login</h1>
+      <p style="color: #666; margin-top: 10px;">For Presentation Only</p>
+    </div>
+
+    <div class="warning">
+      ⚠️ WARNING: This bypasses ALL security features!<br>
+      NEVER use in production!
+    </div>
+
+    <form id="demoForm">
+      <div class="form-group">
+        <label for="phone">เบอร์โทรศัพท์</label>
+        <input type="tel" id="phone" value="0999999999" required>
+      </div>
+
+      <div class="form-group">
+        <label for="password">รหัสผ่าน</label>
+        <input type="password" id="password" value="demo123" required>
+      </div>
+
+      <button type="submit" class="btn" id="loginBtn">
+        เข้าสู่ระบบ (Demo Mode)
+      </button>
+    </form>
+
+    <div id="result" class="result"></div>
+  </div>
+
+  <script>
+    const API_URL = 'http://localhost:3000';
+
+    document.getElementById('demoForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const phone = document.getElementById('phone').value;
+      const password = document.getElementById('password').value;
+      const btn = document.getElementById('loginBtn');
+      const result = document.getElementById('result');
+
+      // Show loading
+      btn.disabled = true;
+      btn.innerHTML = '<span class="loading"></span> กำลังเข้าสู่ระบบ...';
+      result.style.display = 'none';
+
+      try {
+        const response = await fetch(`${API_URL}/api/v1/auth/demo/login`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ phone, password }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          // Success
+          result.className = 'result success';
+          result.innerHTML = `
+            <h3>✅ เข้าสู่ระบบสำเร็จ!</h3>
+            <p><strong>User:</strong> ${data.data.user.firstName || 'Demo'} ${data.data.user.lastName || 'User'}</p>
+            <p><strong>Phone:</strong> ${data.data.user.phone}</p>
+            <p><strong>KYC Status:</strong> ${data.data.user.kycStatus}</p>
+            <div class="token">
+              <strong>Access Token:</strong><br>
+              ${data.data.accessToken}
+            </div>
+            <pre>${JSON.stringify(data, null, 2)}</pre>
+          `;
+          result.style.display = 'block';
+
+          // Store token for future requests
+          localStorage.setItem('accessToken', data.data.accessToken);
+          localStorage.setItem('refreshToken', data.data.refreshToken);
+
+          console.log('✅ Tokens saved to localStorage');
+        } else {
+          // Error
+          result.className = 'result error';
+          result.innerHTML = `
+            <h3>❌ เข้าสู่ระบบไม่สำเร็จ!</h3>
+            <p>${data.error?.message || 'Unknown error'}</p>
+            <pre>${JSON.stringify(data, null, 2)}</pre>
+          `;
+          result.style.display = 'block';
+        }
+      } catch (error) {
+        result.className = 'result error';
+        result.innerHTML = `
+          <h3>❌ เกิดข้อผิดพลาด!</h3>
+          <p>${error.message}</p>
+          <p>กรุณาตรวจสอบว่า server กำลังทำงานที่ ${API_URL}</p>
+        `;
+        result.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'เข้าสู่ระบบ (Demo Mode)';
+      }
+    });
+  </script>
+</body>
+</html>

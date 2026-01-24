@@ -205,13 +205,24 @@ export const listUsers = async (req, res, next) => {
 
     // Validate sort column
     const sortColumns = {
+      default: 'created_at',
+      allowed: ['created_at', 'phone', 'first_name', 'kyc_status', 'last_login_at']
+    };
+    
+    // Map frontend sort keys to DB columns
+    const sortMap = {
       createdAt: 'created_at',
       phone: 'phone',
       firstName: 'first_name',
       kycStatus: 'kyc_status',
+      lastLogin: 'last_login_at'
     };
-    const sortColumn = sortColumns[sort] || 'created_at';
-    const sortOrder = order === 'asc' ? 'ASC' : 'DESC';
+
+    const sortColumn = sortMap[sort] && sortColumns.allowed.includes(sortMap[sort]) 
+      ? sortMap[sort] 
+      : sortColumns.default;
+      
+    const sortOrder = (order && order.toUpperCase() === 'ASC') ? 'ASC' : 'DESC';
 
     // Get total count
     const countResult = await query(
@@ -682,13 +693,24 @@ export const listLoans = async (req, res, next) => {
 
     // Validate sort column
     const sortColumns = {
+      default: 'la.submitted_at',
+      allowed: ['la.submitted_at', 'la.amount_requested', 'la.status', 'la.created_at', 'la.approved_at', 'u.first_name']
+    };
+    
+    const sortMap = {
       submittedAt: 'la.submitted_at',
       amountRequested: 'la.amount_requested',
       status: 'la.status',
       createdAt: 'la.created_at',
+      approvedAt: 'la.approved_at',
+      userName: 'u.first_name'
     };
-    const sortColumn = sortColumns[sort] || 'la.submitted_at';
-    const sortOrder = order === 'asc' ? 'ASC' : 'DESC';
+
+    const sortColumn = sortMap[sort] && sortColumns.allowed.includes(sortMap[sort])
+      ? sortMap[sort]
+      : sortColumns.default;
+      
+    const sortOrder = (order && order.toUpperCase() === 'ASC') ? 'ASC' : 'DESC';
 
     // Get total count
     const countResult = await query(
@@ -776,7 +798,7 @@ export const getLoanDetail = async (req, res, next) => {
 
     // Get loan with user info
     const loanResult = await query(
-      `SELECT la.*, u.phone, u.first_name, u.last_name, u.email, u.birth_date
+      `SELECT la.*, u.phone, u.first_name, u.last_name, u.email, u.date_of_birth
        FROM loan_applications la
        JOIN users u ON la.user_id = u.id
        WHERE la.id = $1`,
@@ -798,7 +820,7 @@ export const getLoanDetail = async (req, res, next) => {
     // Get partner submissions
     const partnerResult = await query(
       `SELECT * FROM partner_submissions WHERE user_id = $1
-       ORDER BY created_at DESC`,
+       ORDER BY submitted_at DESC`,
       [loan.user_id]
     );
 
@@ -828,7 +850,7 @@ export const getLoanDetail = async (req, res, next) => {
           firstName: loan.first_name,
           lastName: loan.last_name,
           email: loan.email,
-          birthDate: loan.birth_date,
+          birthDate: loan.date_of_birth,
         },
         creditScore: creditResult.rows.length > 0 ? {
           id: creditResult.rows[0].id,
@@ -847,7 +869,7 @@ export const getLoanDetail = async (req, res, next) => {
           applicationId: p.application_id,
           status: p.status,
           response: p.response,
-          createdAt: p.created_at,
+          createdAt: p.submitted_at,
         })),
       },
     });

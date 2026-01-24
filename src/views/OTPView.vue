@@ -64,6 +64,7 @@
 import { ref, computed, onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "../stores/auth";
+import { useDemoStore } from "../stores/demo";
 import JHeader from "../components/layout/JHeader.vue";
 import JButton from "../components/base/JButton.vue";
 
@@ -176,9 +177,26 @@ const handleSubmit = async () => {
   }
 };
 
-onMounted(() => {
+onMounted(async () => {
   startCountdown();
   otpInputs.value[0]?.focus();
+
+  // Demo Mode: Auto-fill OTP
+  const demoStore = useDemoStore();
+  if (demoStore.isDemoMode && authStore.devOtp) {
+    await demoStore.simulateDelay(1500);
+    const mockOtp = authStore.devOtp.split("");
+
+    // Simulate typing effect
+    for (let i = 0; i < 6; i++) {
+      await demoStore.simulateDelay(200);
+      otpDigits.value[i] = mockOtp[i];
+    }
+
+    // Auto submit after fill
+    await demoStore.simulateDelay(500);
+    handleSubmit();
+  }
 });
 
 onUnmounted(() => {

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
-import { loanAccounts, getInstallments, getLoanById } from '../services/mockData'
+import { ref, computed, onMounted } from 'vue'
+import * as dataService from '@/services/dataService'
 
 export const useLoansStore = defineStore('loans', () => {
     // State
@@ -29,20 +29,25 @@ export const useLoansStore = defineStore('loans', () => {
     // Actions
     const fetchLoans = async () => {
         isLoading.value = true
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 500))
-        loans.value = loanAccounts
-        isLoading.value = false
+        try {
+            loans.value = await dataService.getUserLoans()
+        } catch (error) {
+            console.error('Failed to fetch loans:', error)
+        } finally {
+            isLoading.value = false
+        }
     }
 
     const fetchLoanDetail = async (loanId) => {
         isLoading.value = true
-        await new Promise(resolve => setTimeout(resolve, 300))
-
-        selectedLoan.value = getLoanById(loanId)
-        installments.value = getInstallments(loanId)
-
-        isLoading.value = false
+        try {
+            selectedLoan.value = await dataService.getLoanById(loanId)
+            installments.value = await dataService.getInstallments(loanId)
+        } catch (error) {
+            console.error('Failed to fetch loan detail:', error)
+        } finally {
+            isLoading.value = false
+        }
     }
 
     const selectLoan = (loanId) => {
@@ -61,6 +66,17 @@ export const useLoansStore = defineStore('loans', () => {
                 selectedLoan.value.remainingBalance -= installment.principal
             }
         }
+    }
+
+    // Listen for scenario changes
+    if (typeof window !== 'undefined') {
+        window.addEventListener('scenario:changed', () => {
+            console.log('Loans store: Scenario changed, refreshing loans')
+            fetchLoans()
+            if (selectedLoan.value) {
+                fetchLoanDetail(selectedLoan.value.loanId)
+            }
+        })
     }
 
     return {

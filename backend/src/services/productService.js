@@ -344,6 +344,32 @@ export const checkStock = async (productId, quantity = 1) => {
   };
 };
 
+/**
+ * Get product summary context for AI
+ * Formats active products into a concise text format for the LLM
+ * @returns {Promise<string>} Formatted product strings
+ */
+export const getProductsSummaryContext = async () => {
+  const result = await query(
+    `SELECT name, min_amount, max_amount, interest_rate, term_months, description
+     FROM products
+     WHERE status = 'ACTIVE'
+     ORDER BY display_order ASC`
+  );
+
+  if (result.rows.length === 0) {
+    return 'Currently no active loan products available.';
+  }
+
+  return result.rows.map((p, index) => {
+    return `${index + 1}. **${p.name}**
+   - วงเงิน: ${p.min_amount.toLocaleString()} - ${p.max_amount.toLocaleString()} บาท
+   - อัตราดอกเบี้ย: ${p.interest_rate}
+   - ระยะเวลา: ${p.term_months} เดือน
+   - รายละเอียด: ${p.description}`;
+  }).join('\n\n');
+};
+
 export default {
   listProducts,
   getProduct,
@@ -352,4 +378,5 @@ export default {
   listCategories,
   getCategory,
   checkStock,
+  getProductsSummaryContext,
 };

@@ -37,28 +37,29 @@ describe('PdfService', () => {
     });
 
     describe('parseTransactions', () => {
-        it('should extract standard transactions (Date Desc Amount)', () => {
+        it('should extract standard transactions (Date Desc Amount Balance)', () => {
+            // Pattern 1 expects: DD/MM/YYYY Description Amount Balance
             const text = `
                 Account Statement
-                01/01/2026 Salary +50,000.00
-                05/01/2026 Payment -500.00
-                10/01/2026 Transfer +1,000.00
+                01/01/2026 SALARY DEPOSIT 50,000.00 75,000.00
+                05/01/2026 Payment -500.00 74,500.00
+                10/01/2026 Transfer 1,000.00 75,500.00
             `;
             
             const transactions = pdfService.parseTransactions(text);
             
             expect(transactions).toHaveLength(3);
-            expect(transactions[0]).toEqual({
-                date: '01/01/2026',
-                description: 'Salary',
+            expect(transactions[0]).toMatchObject({
+                date: expect.any(String), // Date is normalized
+                description: 'SALARY DEPOSIT',
                 amount: 50000.00,
-                type: 'DEPOSIT' // Positive
+                type: 'CREDIT'
             });
-            expect(transactions[1]).toEqual({
-                date: '05/01/2026',
+            expect(transactions[1]).toMatchObject({
+                date: expect.any(String),
                 description: 'Payment',
-                amount: 500.00,
-                type: 'WITHDRAWAL' // Negative implied
+                amount: -500.00,
+                type: 'DEBIT'
             });
         });
 

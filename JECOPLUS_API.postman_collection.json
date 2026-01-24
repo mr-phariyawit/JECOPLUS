@@ -1,0 +1,441 @@
+{
+  "info": {
+    "name": "JECOPLUS API Collection",
+    "description": "Complete API collection for JECOPLUS platform",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {"key": "baseUrl", "value": "http://localhost:3002", "type": "string"},
+    {"key": "accessToken", "value": "", "type": "string"},
+    {"key": "refreshToken", "value": "", "type": "string"},
+    {"key": "csrfToken", "value": "", "type": "string"},
+    {"key": "userId", "value": "", "type": "string"},
+    {"key": "conversationId", "value": "", "type": "string"}
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/health",
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Health check passes', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.success).to.be.true;",
+                  "    pm.expect(json.status).to.eql('healthy');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Request OTP",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/auth/request-otp",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phoneNumber\": \"0812345678\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('OTP requested successfully', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    var json = pm.response.json();",
+                  "    if (json.data && json.data.sessionId) {",
+                  "        pm.collectionVariables.set('sessionId', json.data.sessionId);",
+                  "    }",
+                  "    if (json.data && json.data.devOtp) {",
+                  "        pm.collectionVariables.set('otp', json.data.devOtp);",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Verify OTP (Login)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/auth/verify-otp",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sessionId\": \"{{sessionId}}\",\n  \"otp\": \"{{otp}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Login successful', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    var json = pm.response.json();",
+                  "    if (json.data && json.data.accessToken) {",
+                  "        pm.collectionVariables.set('accessToken', json.data.accessToken);",
+                  "        pm.collectionVariables.set('refreshToken', json.data.refreshToken);",
+                  "        pm.collectionVariables.set('userId', json.data.user.id);",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get CSRF Token",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/csrf-token",
+            "header": [{"key": "Authorization", "value": "Bearer {{accessToken}}"}]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('CSRF token retrieved', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    var json = pm.response.json();",
+                  "    if (json.data && json.data.csrfToken) {",
+                  "        pm.collectionVariables.set('csrfToken', json.data.csrfToken);",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/auth/refresh-token",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/auth/logout",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"},
+              {"key": "X-CSRF-Token", "value": "{{csrfToken}}"}
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Get Current User Profile",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/users/me",
+            "header": [{"key": "Authorization", "value": "Bearer {{accessToken}}"}]
+          }
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/v1/users/me",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"},
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "X-CSRF-Token", "value": "{{csrfToken}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Test\",\n  \"lastName\": \"User\",\n  \"email\": \"test@example.com\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "KYC",
+      "item": [
+        {
+          "name": "Get KYC Status",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/kyc/status",
+            "header": [{"key": "Authorization", "value": "Bearer {{accessToken}}"}]
+          }
+        },
+        {
+          "name": "Start KYC Session",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/kyc/start",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"},
+              {"key": "X-CSRF-Token", "value": "{{csrfToken}}"}
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Wallet",
+      "item": [
+        {
+          "name": "Get Wallet Balance",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/wallet/balance",
+            "header": [{"key": "Authorization", "value": "Bearer {{accessToken}}"}]
+          }
+        },
+        {
+          "name": "Get Transaction History",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/wallet/transactions",
+            "header": [{"key": "Authorization", "value": "Bearer {{accessToken}}"}]
+          }
+        },
+        {
+          "name": "Top Up Wallet",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/wallet/topup",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"},
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "X-CSRF-Token", "value": "{{csrfToken}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 1000,\n  \"paymentMethod\": \"BANK_TRANSFER\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "Get All Products",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/products",
+            "header": []
+          }
+        },
+        {
+          "name": "Get Product by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/products/:id",
+            "header": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Categories",
+      "item": [
+        {
+          "name": "Get All Categories",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/categories",
+            "header": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "item": [
+        {
+          "name": "Get My Orders",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/orders",
+            "header": [{"key": "Authorization", "value": "Bearer {{accessToken}}"}]
+          }
+        },
+        {
+          "name": "Create Order",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/orders",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"},
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "X-CSRF-Token", "value": "{{csrfToken}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [{\"productId\": \"product-uuid\", \"quantity\": 1}],\n  \"shippingAddress\": \"123 Test Street\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "AI Chat",
+      "item": [
+        {
+          "name": "Send Message",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/chat/send",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"},
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "X-CSRF-Token", "value": "{{csrfToken}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"สวัสดีครับ ขอสอบถามเรื่องสินเชื่อหน่อยครับ\",\n  \"conversationId\": \"{{conversationId}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Chat response received', function() {",
+                  "    var json = pm.response.json();",
+                  "    if (json.data && json.data.conversationId) {",
+                  "        pm.collectionVariables.set('conversationId', json.data.conversationId);",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Conversations",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/chat/conversations",
+            "header": [{"key": "Authorization", "value": "Bearer {{accessToken}}"}]
+          }
+        },
+        {
+          "name": "Get Conversation Messages",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/chat/conversations/{{conversationId}}/messages",
+            "header": [{"key": "Authorization", "value": "Bearer {{accessToken}}"}]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Money Coach",
+      "item": [
+        {
+          "name": "Get Financial Analysis",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/money-coach/analysis",
+            "header": [{"key": "Authorization", "value": "Bearer {{accessToken}}"}]
+          }
+        },
+        {
+          "name": "Get Advice",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/money-coach/advice",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"},
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "X-CSRF-Token", "value": "{{csrfToken}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question\": \"ฉันควรเก็บเงินเท่าไหร่ต่อเดือน?\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Loan Assistant",
+      "item": [
+        {
+          "name": "Get Loan Recommendations",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/loan-assistant/recommendations",
+            "header": [{"key": "Authorization", "value": "Bearer {{accessToken}}"}]
+          }
+        },
+        {
+          "name": "Calculate Loan",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/loan-assistant/calculate",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 100000,\n  \"term\": 12,\n  \"interestRate\": 18\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/admin/users",
+            "header": [{"key": "Authorization", "value": "Bearer {{accessToken}}"}]
+          }
+        },
+        {
+          "name": "Get Dashboard Stats",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/admin/dashboard",
+            "header": [{"key": "Authorization", "value": "Bearer {{accessToken}}"}]
+          }
+        }
+      ]
+    }
+  ]
+}

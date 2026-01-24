@@ -2,17 +2,28 @@
   <div class="product-detail screen">
     <!-- Loading State -->
     <div v-if="isLoading" class="product-detail__loading">
-      <div class="skeleton" style="height: 300px; margin-bottom: 16px;"></div>
-      <div class="skeleton" style="height: 40px; margin-bottom: 12px; width: 70%;"></div>
-      <div class="skeleton" style="height: 60px; margin-bottom: 16px; width: 40%;"></div>
-      <div class="skeleton" style="height: 200px;"></div>
+      <div class="skeleton" style="height: 300px; margin-bottom: 16px"></div>
+      <div
+        class="skeleton"
+        style="height: 40px; margin-bottom: 12px; width: 70%"
+      ></div>
+      <div
+        class="skeleton"
+        style="height: 60px; margin-bottom: 16px; width: 40%"
+      ></div>
+      <div class="skeleton" style="height: 200px"></div>
     </div>
 
     <!-- Error State -->
     <div v-else-if="error" class="product-detail__error">
       <svg width="64" height="64" viewBox="0 0 24 24" fill="none">
-        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-        <path d="M12 8v4m0 4h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+        <path
+          d="M12 8v4m0 4h.01"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+        />
       </svg>
       <p class="product-detail__error-title">ไม่พบสินค้า</p>
       <p class="product-detail__error-text">{{ error }}</p>
@@ -24,7 +35,12 @@
       <!-- Back Button -->
       <button class="product-detail__back" @click="goBack">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-          <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path
+            d="M19 12H5M12 19l-7-7 7-7"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+          />
         </svg>
         กลับ
       </button>
@@ -40,26 +56,23 @@
           />
           <!-- Badges -->
           <div class="product-detail__badges">
-            <JBadge
-              v-if="product.isFeatured"
-              label="แนะนำ"
-              variant="danger"
-            />
-            <JBadge
-              v-if="product.isNew"
-              label="ใหม่"
-              variant="success"
-            />
+            <JBadge v-if="product.isFeatured" label="แนะนำ" variant="danger" />
+            <JBadge v-if="product.isNew" label="ใหม่" variant="success" />
           </div>
         </div>
 
         <!-- Image Thumbnails (if multiple images) -->
-        <div v-if="product.images && product.images.length > 1" class="product-detail__thumbnails">
+        <div
+          v-if="product.images && product.images.length > 1"
+          class="product-detail__thumbnails"
+        >
           <button
             v-for="(image, index) in product.images"
             :key="index"
             class="product-detail__thumbnail"
-            :class="{ 'product-detail__thumbnail--active': currentImage === image }"
+            :class="{
+              'product-detail__thumbnail--active': currentImage === image,
+            }"
             @click="currentImage = image"
           >
             <img :src="image" :alt="`${product.name} ${index + 1}`" />
@@ -95,10 +108,14 @@
               :stroke="star <= product.rating ? 'currentColor' : 'currentColor'"
               stroke-width="2"
             >
-              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+              <path
+                d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+              />
             </svg>
           </div>
-          <span class="product-detail__rating-text">{{ product.rating.toFixed(1) }}</span>
+          <span class="product-detail__rating-text">{{
+            product.rating.toFixed(1)
+          }}</span>
           <span v-if="product.reviewCount" class="product-detail__review-count">
             ({{ product.reviewCount }} รีวิว)
           </span>
@@ -107,7 +124,10 @@
         <!-- Price -->
         <div class="product-detail__price-section">
           <p class="product-detail__price">฿{{ formatPrice(product.price) }}</p>
-          <p v-if="product.compareAtPrice" class="product-detail__compare-price">
+          <p
+            v-if="product.compareAtPrice"
+            class="product-detail__compare-price"
+          >
             ฿{{ formatPrice(product.compareAtPrice) }}
           </p>
           <span v-if="discount" class="product-detail__discount">
@@ -125,7 +145,10 @@
         </div>
 
         <!-- Quantity Selector -->
-        <div v-if="product.status === 'ACTIVE'" class="product-detail__quantity">
+        <div
+          v-if="product.status === 'ACTIVE'"
+          class="product-detail__quantity"
+        >
           <label class="product-detail__quantity-label">จำนวน</label>
           <div class="product-detail__quantity-controls">
             <button
@@ -134,7 +157,12 @@
               @click="decrementQuantity"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <path d="M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path
+                  d="M5 12h14"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
               </svg>
             </button>
             <input
@@ -150,7 +178,12 @@
               @click="incrementQuantity"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <path d="M12 5v14m-7-7h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path
+                  d="M12 5v14m-7-7h14"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
               </svg>
             </button>
           </div>
@@ -167,7 +200,12 @@
             @click="addToCart"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <path d="M9 2L7 6M17 2l2 4M21 6H3m18 0l-2 13H5L3 6h18zM10 11v3m4-3v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path
+                d="M9 2L7 6M17 2l2 4M21 6H3m18 0l-2 13H5L3 6h18zM10 11v3m4-3v3"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
             </svg>
             เพิ่มลงตะกร้า
           </button>
@@ -183,15 +221,33 @@
         <!-- Share & Favorite -->
         <div class="product-detail__secondary-actions">
           <button class="product-detail__action-btn" @click="toggleFavorite">
-            <svg width="20" height="20" viewBox="0 0 24 24" :fill="isFavorite ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2">
-              <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              :fill="isFavorite ? 'currentColor' : 'none'"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"
+              />
             </svg>
-            {{ isFavorite ? 'ถูกใจแล้ว' : 'ถูกใจ' }}
+            {{ isFavorite ? "ถูกใจแล้ว" : "ถูกใจ" }}
           </button>
           <button class="product-detail__action-btn" @click="shareProduct">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
-              <path d="M8.59 13.51l6.83 3.98m-.01-10.98l-6.82 3.98"/>
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="18" cy="5" r="3" />
+              <circle cx="6" cy="12" r="3" />
+              <circle cx="18" cy="19" r="3" />
+              <path d="M8.59 13.51l6.83 3.98m-.01-10.98l-6.82 3.98" />
             </svg>
             แชร์
           </button>
@@ -215,7 +271,10 @@
         <div class="product-detail__tab-content">
           <!-- Description Tab -->
           <div v-if="activeTab === 'description'" class="tab-panel">
-            <div class="product-detail__description" v-html="formattedDescription"></div>
+            <div
+              class="product-detail__description"
+              v-html="formattedDescription"
+            ></div>
           </div>
 
           <!-- Specifications Tab -->
@@ -246,7 +305,10 @@
       </section>
 
       <!-- Related Products -->
-      <section v-if="relatedProducts.length" class="product-detail__related section">
+      <section
+        v-if="relatedProducts.length"
+        class="product-detail__related section"
+      >
         <h2 class="section-title">สินค้าที่เกี่ยวข้อง</h2>
         <div class="product-detail__related-grid">
           <ProductCard
@@ -262,12 +324,13 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import JBadge from '@/components/base/JBadge.vue';
-import ProductCard from '@/components/marketplace/ProductCard.vue';
-import { useMarketplaceStore } from '@/stores/marketplace';
-import { useCartStore } from '@/stores/cart';
+import { ref, computed, onMounted } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import JBadge from "@/components/base/JBadge.vue";
+import ProductCard from "@/components/marketplace/ProductCard.vue";
+import { useMarketplaceStore } from "@/stores/marketplace";
+import { useCartStore } from "@/stores/cart";
+import { useDemoStore } from "@/stores/demo";
 
 const route = useRoute();
 const router = useRouter();
@@ -279,60 +342,68 @@ const product = ref(null);
 const isLoading = ref(true);
 const error = ref(null);
 const quantity = ref(1);
-const currentImage = ref('');
-const activeTab = ref('description');
+const currentImage = ref("");
+const activeTab = ref("description");
 const isFavorite = ref(false);
 const relatedProducts = ref([]);
 
 const tabs = [
-  { id: 'description', label: 'รายละเอียด' },
-  { id: 'specs', label: 'สเปค' },
-  { id: 'reviews', label: 'รีวิว' },
+  { id: "description", label: "รายละเอียด" },
+  { id: "specs", label: "สเปค" },
+  { id: "reviews", label: "รีวิว" },
 ];
 
 // Computed
 const discount = computed(() => {
   if (!product.value?.compareAtPrice || !product.value?.price) return 0;
-  return Math.round(((product.value.compareAtPrice - product.value.price) / product.value.compareAtPrice) * 100);
+  return Math.round(
+    ((product.value.compareAtPrice - product.value.price) /
+      product.value.compareAtPrice) *
+      100,
+  );
 });
 
 const stockStatusClass = computed(() => {
-  if (!product.value) return '';
-  if (product.value.status !== 'ACTIVE') return 'product-detail__stock-indicator--out';
-  if (product.value.stockQuantity <= 10) return 'product-detail__stock-indicator--low';
-  return 'product-detail__stock-indicator--in';
+  if (!product.value) return "";
+  if (product.value.status !== "ACTIVE")
+    return "product-detail__stock-indicator--out";
+  if (product.value.stockQuantity <= 10)
+    return "product-detail__stock-indicator--low";
+  return "product-detail__stock-indicator--in";
 });
 
 const stockStatusText = computed(() => {
-  if (!product.value) return '';
-  if (product.value.status === 'OUT_OF_STOCK') return 'สินค้าหมด';
-  if (product.value.status === 'DISCONTINUED') return 'ยกเลิกจำหน่าย';
-  if (product.value.status === 'INACTIVE') return 'ไม่พร้อมขาย';
-  if (product.value.stockQuantity <= 10) return 'เหลือน้อย';
-  return 'พร้อมส่ง';
+  if (!product.value) return "";
+  if (product.value.status === "OUT_OF_STOCK") return "สินค้าหมด";
+  if (product.value.status === "DISCONTINUED") return "ยกเลิกจำหน่าย";
+  if (product.value.status === "INACTIVE") return "ไม่พร้อมขาย";
+  if (product.value.stockQuantity <= 10) return "เหลือน้อย";
+  return "พร้อมส่ง";
 });
 
 const formattedDescription = computed(() => {
-  if (!product.value?.description) return '';
+  if (!product.value?.description) return "";
   // Convert newlines to <br> and preserve formatting
-  return product.value.description.replace(/\n/g, '<br>');
+  return product.value.description.replace(/\n/g, "<br>");
 });
 
 const specifications = computed(() => {
   if (!product.value?.specifications) return [];
   // Parse specifications from object or string
-  if (typeof product.value.specifications === 'object') {
-    return Object.entries(product.value.specifications).map(([label, value]) => ({
-      label,
-      value: String(value),
-    }));
+  if (typeof product.value.specifications === "object") {
+    return Object.entries(product.value.specifications).map(
+      ([label, value]) => ({
+        label,
+        value: String(value),
+      }),
+    );
   }
   return [];
 });
 
 // Methods
 const formatPrice = (price) => {
-  return new Intl.NumberFormat('th-TH', {
+  return new Intl.NumberFormat("th-TH", {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   }).format(price);
@@ -350,18 +421,56 @@ const decrementQuantity = () => {
   }
 };
 
-const addToCart = () => {
+const flyToCart = async (startEl) => {
+  const rect = startEl.getBoundingClientRect();
+  const flyingEl = document.createElement("div");
+  flyingEl.style.position = "fixed";
+  flyingEl.style.left = rect.left + "px";
+  flyingEl.style.top = rect.top + "px";
+  flyingEl.style.width = "50px";
+  flyingEl.style.height = "50px";
+  flyingEl.style.borderRadius = "50%";
+  flyingEl.style.backgroundImage = `url(${currentImage.value})`;
+  flyingEl.style.backgroundSize = "cover";
+  flyingEl.style.zIndex = "9999";
+  flyingEl.style.transition = "all 0.8s cubic-bezier(0.19, 1, 0.22, 1)";
+
+  document.body.appendChild(flyingEl);
+
+  // Force reflow
+  flyingEl.getBoundingClientRect();
+
+  // Fly to top right
+  flyingEl.style.left = window.innerWidth - 60 + "px";
+  flyingEl.style.top = "20px";
+  flyingEl.style.opacity = "0";
+  flyingEl.style.transform = "scale(0.1)";
+
+  await new Promise((r) => setTimeout(r, 800));
+  document.body.removeChild(flyingEl);
+};
+
+const addToCart = async (event) => {
   try {
+    const demoStore = useDemoStore();
+    if (demoStore.isDemoMode) {
+      if (event && event.target) {
+        await flyToCart(event.target);
+      }
+    }
+
     // Add item to cart
     cartStore.addItem(product.value, quantity.value);
 
     // Show success message
-    alert(`เพิ่ม ${product.value.name} จำนวน ${quantity.value} ชิ้นลงตะกร้าแล้ว`);
+    alert(
+      `เพิ่ม ${product.value.name} จำนวน ${quantity.value} ชิ้นลงตะกร้าแล้ว`,
+    );
 
     // Reset quantity to 1
     quantity.value = 1;
   } catch (error) {
-    alert(error.message || 'เกิดข้อผิดพลาดในการเพิ่มสินค้าลงตะกร้า');
+    alert(error.message || "เกิดข้อผิดพลาดในการเพิ่มสินค้าลงตะกร้า");
   }
 };
 
@@ -371,9 +480,9 @@ const buyNow = () => {
     cartStore.addItem(product.value, quantity.value);
 
     // Navigate to cart page immediately
-    router.push('/cart');
+    router.push("/cart");
   } catch (error) {
-    alert(error.message || 'เกิดข้อผิดพลาดในการเพิ่มสินค้าลงตะกร้า');
+    alert(error.message || "เกิดข้อผิดพลาดในการเพิ่มสินค้าลงตะกร้า");
   }
 };
 
@@ -391,12 +500,12 @@ const shareProduct = async () => {
         url: window.location.href,
       });
     } catch (err) {
-      console.log('Share failed:', err);
+      console.log("Share failed:", err);
     }
   } else {
     // Fallback: Copy to clipboard
     navigator.clipboard.writeText(window.location.href);
-    alert('คัดลอกลิงก์แล้ว');
+    alert("คัดลอกลิงก์แล้ว");
   }
 };
 
@@ -411,7 +520,7 @@ const goToProduct = (productId) => {
 };
 
 const handleImageError = (event) => {
-  event.target.src = 'https://via.placeholder.com/600x600?text=No+Image';
+  event.target.src = "https://via.placeholder.com/600x600?text=No+Image";
 };
 
 const loadProduct = async () => {
@@ -435,8 +544,8 @@ const loadProduct = async () => {
     // TODO: Implement related products API
     relatedProducts.value = [];
   } catch (err) {
-    error.value = err.message || 'ไม่สามารถโหลดข้อมูลสินค้าได้';
-    console.error('Error loading product:', err);
+    error.value = err.message || "ไม่สามารถโหลดข้อมูลสินค้าได้";
+    console.error("Error loading product:", err);
   } finally {
     isLoading.value = false;
   }

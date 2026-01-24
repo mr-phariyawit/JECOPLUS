@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>🔍 Chat Auth Debug</title>
+    <style>
+        body { font-family: monospace; padding: 20px; max-width: 1000px; }
+        .section { background: #f5f5f5; padding: 15px; margin: 15px 0; border-radius: 5px; }
+        .success { color: green; }
+        .error { color: red; }
+        .warning { color: orange; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        pre { background: white; padding: 10px; overflow-x: auto; }
+        .log { background: white; padding: 5px; margin: 3px 0; border-left: 3px solid #ccc; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Chat Authentication Debugger</h1>
+
+    <div class="section">
+        <h2>1. Token Status</h2>
+        <div id="tokenStatus"></div>
+        <button onclick="checkTokens()">🔄 Refresh Status</button>
+    </div>
+
+    <div class="section">
+        <h2>2. Token Refresh Test</h2>
+        <div id="refreshResult"></div>
+        <button onclick="testRefresh()">🔑 Test Token Refresh</button>
+    </div>
+
+    <div class="section">
+        <h2>3. Chat API Test</h2>
+        <input type="text" id="testMessage" placeholder="Test message..." style="width: 300px; padding: 8px;">
+        <button onclick="testChatAPI()">💬 Send Test Message</button>
+        <div id="chatResult"></div>
+    </div>
+
+    <div class="section">
+        <h2>4. Event Logs</h2>
+        <div id="logs"></div>
+        <button onclick="clearLogs()">🗑️ Clear Logs</button>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3002/api/v1';
+        const logs = [];
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            logs.push({ timestamp, message, type });
+
+            const logsDiv = document.getElementById('logs');
+            const logDiv = document.createElement('div');
+            logDiv.className = `log ${type}`;
+            logDiv.innerHTML = `[${timestamp}] <span class="${type}">${message}</span>`;
+            logsDiv.insertBefore(logDiv, logsDiv.firstChild);
+
+            console.log(`[${type.toUpperCase()}]`, message);
+        }
+
+        function clearLogs() {
+            document.getElementById('logs').innerHTML = '';
+            logs.length = 0;
+        }
+
+        function getTokens() {
+            return {
+                access: localStorage.getItem('jecoplus_access_token'),
+                refresh: localStorage.getItem('jecoplus_refresh_token'),
+                csrf: localStorage.getItem('csrf_token')
+            };
+        }
+
+        function decodeToken(token) {
+            try {
+                const parts = token.split('.');
+                if (parts.length !== 3) return null;
+
+                const payload = JSON.parse(atob(parts[1]));
+                return payload;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function checkTokens() {
+            const statusDiv = document.getElementById('tokenStatus');
+            const tokens = getTokens();
+
+            let html = '';
+
+            if (!tokens.access) {
+                html = '<p class="error">❌ No access token found</p>';
+                log('No access token in localStorage', 'error');
+            } else {
+                const payload = decodeToken(tokens.access);
+                if (!payload) {
+                    html = '<p class="error">❌ Invalid token format</p>';
+                    log('Cannot decode access token', 'error');
+                } else {
+                    const exp = new Date(payload.exp * 1000);
+                    const iat = new Date(payload.iat * 1000);
+                    const now = new Date();
+                    const remainingMinutes = Math.floor((exp - now) / 1000 / 60);
+                    const ageMinutes = Math.floor((now - iat) / 1000 / 60);
+
+                    const isExpired = exp < now;
+                    const status = isExpired ? 'error' : 'success';
+
+                    html = `
+                        <p class="${status}"><strong>Access Token:</strong></p>
+                        <pre>${tokens.access.substring(0, 60)}...</pre>
+                        <p>👤 User ID: ${payload.sub}</p>
+                        <p>👥 Role: ${payload.role}</p>
+                        <p>🕐 Issued: ${iat.toLocaleString()} (${ageMinutes} min ago)</p>
+                        <p>⏰ Expires: ${exp.toLocaleString()}</p>
+                        <p class="${status}">⏳ ${isExpired ? '❌ EXPIRED ' + Math.abs(remainingMinutes) + ' min ago' : '✅ Valid for ' + remainingMinutes + ' min'}</p>
+                    `;
+
+                    log(`Token age: ${ageMinutes} min, remaining: ${remainingMinutes} min`, isExpired ? 'error' : 'success');
+                }
+            }
+
+            if (tokens.refresh) {
+                html += '<p class="success">✅ Refresh token exists</p>';
+                log('Refresh token found', 'success');
+            } else {
+                html += '<p class="error">❌ No refresh token</p>';
+                log('No refresh token', 'error');
+            }
+
+            if (tokens.csrf) {
+                html += `<p class="success">✅ CSRF token: ${tokens.csrf.substring(0, 30)}...</p>`;
+            }
+
+            statusDiv.innerHTML = html;
+        }
+
+        async function testRefresh() {
+            const resultDiv = document.getElementById('refreshResult');
+            const tokens = getTokens();
+
+            if (!tokens.refresh) {
+                resultDiv.innerHTML = '<p class="error">❌ No refresh token available</p>';
+                log('Cannot test refresh - no refresh token', 'error');
+                return;
+            }
+
+            resultDiv.innerHTML = '<p class="warning">⏳ Testing token refresh...</p>';
+            log('Attempting token refresh...', 'info');
+
+            try {
+                const response = await fetch(`${API_URL}/auth/token/refresh`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        refreshToken: tokens.refresh
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <p class="success">✅ Token refresh successful!</p>
+                        <p>New token received: ${data.data.accessToken.substring(0, 60)}...</p>
+                        <p><strong>Note:</strong> Not saved to localStorage (test only)</p>
+                    `;
+                    log('Token refresh successful', 'success');
+                } else {
+                    resultDiv.innerHTML = `
+                        <p class="error">❌ Token refresh failed</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                    log(`Token refresh failed: ${data.error?.message || 'Unknown error'}`, 'error');
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="error">❌ Network error: ${error.message}</p>`;
+                log(`Network error during refresh: ${error.message}`, 'error');
+            }
+        }
+
+        async function testChatAPI() {
+            const resultDiv = document.getElementById('chatResult');
+            const message = document.getElementById('testMessage').value.trim();
+            const tokens = getTokens();
+
+            if (!message) {
+                resultDiv.innerHTML = '<p class="warning">⚠️ Please enter a message</p>';
+                return;
+            }
+
+            if (!tokens.access) {
+                resultDiv.innerHTML = '<p class="error">❌ No access token - please login first</p>';
+                log('Cannot test chat API - no access token', 'error');
+                return;
+            }
+
+            resultDiv.innerHTML = '<p class="warning">⏳ Sending message to chat API...</p>';
+            log(`Sending message: "${message}"`, 'info');
+
+            try {
+                const response = await fetch(`${API_URL}/chat/messages`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${tokens.access}`,
+                        'X-CSRF-Token': tokens.csrf || ''
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        provider: 'gemini',
+                        mode: 'general'
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <p class="success">✅ Chat API call successful!</p>
+                        <p><strong>Response:</strong></p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                    log('Chat API call successful', 'success');
+                } else {
+                    resultDiv.innerHTML = `
+                        <p class="error">❌ Chat API call failed (${response.status})</p>
+                        <p><strong>Error code:</strong> ${data.error?.code}</p>
+                        <p><strong>Message:</strong> ${data.error?.message}</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                    log(`Chat API failed: ${response.status} - ${data.error?.code}`, 'error');
+
+                    // If 401, suggest testing refresh
+                    if (response.status === 401) {
+                        resultDiv.innerHTML += '<p class="warning">💡 Try the "Test Token Refresh" button above</p>';
+                    }
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="error">❌ Network error: ${error.message}</p>`;
+                log(`Network error during chat API call: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-check on load
+        window.addEventListener('load', () => {
+            log('Page loaded, checking tokens...', 'info');
+            checkTokens();
+        });
+
+        // Monitor localStorage changes
+        window.addEventListener('storage', (e) => {
+            if (e.key && e.key.startsWith('jecoplus_')) {
+                log(`localStorage changed: ${e.key}`, 'warning');
+                checkTokens();
+            }
+        });
+    </script>
+</body>
+</html>

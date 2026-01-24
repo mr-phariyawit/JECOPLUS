@@ -37,7 +37,7 @@ jobs:
       - name: Build frontend
         run: npm run build
         env:
-          VITE_API_URL: ${{ secrets.VITE_API_URL_STAGING }}
+          VITE_API_URL: ${{ secrets.VITE_API_URL_STAGING || 'https://jecoplus-api-rjpmzhdy4a-as.a.run.app' }}
 
       - name: Upload frontend artifacts
         uses: actions/upload-artifact@v4

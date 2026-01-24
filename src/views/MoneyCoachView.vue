@@ -19,376 +19,667 @@
         <button @click="loadAnalysis" class="retry-btn">ลองใหม่</button>
       </div>
 
-      <!-- Content -->
-      <div v-else-if="analysis" class="money-coach-content">
+      <!-- Setup Profile (Empty State) -->
+      <div
+        v-else-if="!analysis || !analysis.profile?.monthly_income"
+        class="setup-card"
+      >
+        <div class="setup-content">
+          <h2>👋 เริ่มต้นใช้งาน Money Coach</h2>
+          <p>กรุณากรอกข้อมูลเบื้องต้นเพื่อให้เราวิเคราะห์สถานะการเงินของคุณ</p>
+
+          <div class="setup-form">
+            <div class="form-group">
+              <label>รายได้ต่อเดือน (บาท)</label>
+              <input
+                v-model.number="setupData.income"
+                type="number"
+                placeholder="เช่น 25000"
+              />
+            </div>
+            <div class="form-group">
+              <label>รายจ่ายคงที่ต่อเดือน (บาท)</label>
+              <input
+                v-model.number="setupData.expense"
+                type="number"
+                placeholder="เช่น 10000"
+              />
+            </div>
+            <div class="form-group">
+              <label>เป้าหมายเงินออม (บาท)</label>
+              <input
+                v-model.number="setupData.savings"
+                type="number"
+                placeholder="เช่น 100000"
+              />
+            </div>
+            <button
+              @click="saveProfile"
+              class="start-btn"
+              :disabled="!isValidSetup"
+            >
+              เริ่มวิเคราะห์
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Analysis Content -->
+      <div v-else class="money-coach-content">
         <!-- Financial Summary Card -->
         <div class="summary-card">
-          <h2>📊 สรุปการเงิน</h2>
+          <h2>📊 สรุปภาพรวม</h2>
           <div class="summary-grid">
             <div class="summary-item">
-              <span class="label">รายได้ต่อเดือน</span>
-              <span class="value income">
-                {{ formatCurrency(analysis.profile?.monthly_income) || 'ยังไม่ได้ตั้งค่า' }}
-              </span>
+              <div class="icon-bg income-bg">💵</div>
+              <div class="summary-text">
+                <span class="label">รายได้</span>
+                <span class="value income">{{
+                  formatCurrency(analysis.profile.monthly_income)
+                }}</span>
+              </div>
             </div>
             <div class="summary-item">
-              <span class="label">รายจ่ายต่อเดือน</span>
-              <span class="value expense">
-                {{ formatCurrency(analysis.profile?.monthly_expenses) || formatCurrency(analysis.spendingAnalysis?.totalSpent) || 'ยังไม่ได้ตั้งค่า' }}
-              </span>
+              <div class="icon-bg expense-bg">💸</div>
+              <div class="summary-text">
+                <span class="label">รายจ่าย</span>
+                <span class="value expense">
+                  {{
+                    formatCurrency(
+                      analysis.profile.monthly_expenses ||
+                        analysis.spendingAnalysis?.totalSpent,
+                    )
+                  }}
+                </span>
+              </div>
             </div>
             <div class="summary-item">
-              <span class="label">เงินคงเหลือ</span>
-              <span class="value balance">
-                {{ formatCurrency(analysis.walletBalance) }}
-              </span>
+              <div class="icon-bg balance-bg">🏦</div>
+              <div class="summary-text">
+                <span class="label">คงเหลือ</span>
+                <span class="value balance">{{
+                  formatCurrency(analysis.walletBalance)
+                }}</span>
+              </div>
             </div>
-            <div class="summary-item" v-if="analysis.profile?.savings_goal">
-              <span class="label">เป้าหมายออมเงิน</span>
-              <span class="value goal">
-                {{ formatCurrency(analysis.profile.savings_goal) }}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Spending Analysis -->
-        <div v-if="analysis.spendingAnalysis" class="spending-card">
-          <h2>💳 การใช้จ่าย</h2>
-          <div class="spending-categories">
-            <div
-              v-for="(amount, category) in analysis.spendingAnalysis.categories"
-              :key="category"
-              class="category-item"
-            >
-              <span class="category-name">{{ getCategoryName(category) }}</span>
-              <span class="category-amount">{{ formatCurrency(amount) }}</span>
-            </div>
-          </div>
-          <div class="spending-total">
-            <span>รวม:</span>
-            <strong>{{ formatCurrency(analysis.spendingAnalysis.totalSpent) }}</strong>
-          </div>
-        </div>
-
-        <!-- Insights -->
-        <div v-if="analysis.insights?.length" class="insights-card">
-          <h2>💡 ข้อเสนอแนะ</h2>
-          <div class="insights-list">
-            <div
-              v-for="(insight, index) in analysis.insights"
-              :key="index"
-              class="insight-item"
-              :class="insight.type"
-            >
-              {{ insight.message }}
+            <div class="summary-item" v-if="analysis.profile.savings_goal">
+              <div class="icon-bg goal-bg">🎯</div>
+              <div class="summary-text">
+                <span class="label">เป้าหมาย</span>
+                <span class="value goal">{{
+                  formatCurrency(analysis.profile.savings_goal)
+                }}</span>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Product Recommendations -->
-        <div v-if="analysis.recommendations?.products?.length" class="recommendations-card">
-          <h2>🛍️ สินค้าแนะนำ</h2>
-          <div class="products-grid">
+        <div class="dashboard-grid">
+          <!-- Spending Chart -->
+          <div v-if="analysis.spendingAnalysis" class="chart-card">
+            <h2>💳 สัดส่วนการใช้จ่าย</h2>
+            <div class="chart-container">
+              <Doughnut :data="chartData" :options="chartOptions" />
+            </div>
+            <div class="spending-total">
+              <span>รวมรายจ่ายเดือนนี้:</span>
+              <strong>{{
+                formatCurrency(analysis.spendingAnalysis.totalSpent)
+              }}</strong>
+            </div>
+          </div>
+
+          <!-- Insights -->
+          <div v-if="analysis.insights?.length" class="insights-card">
+            <h2>💡 คำแนะนำสำหรับคุณ</h2>
+            <div class="insights-list">
+              <div
+                v-for="(insight, index) in analysis.insights"
+                :key="index"
+                class="insight-item"
+                :class="insight.type"
+              >
+                <span class="insight-icon">{{
+                  getInsightIcon(insight.type)
+                }}</span>
+                <p>{{ insight.message }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recommendations -->
+        <div
+          class="recommendations-section"
+          v-if="
+            analysis.recommendations?.products?.length ||
+            analysis.recommendations?.loans?.length
+          "
+        >
+          <h2>⭐ ข้อเสนอพิเศษเพื่อคุณ</h2>
+          <div class="rec-grid">
+            <!-- Product Recs -->
             <div
               v-for="product in analysis.recommendations.products"
               :key="product.id"
-              class="product-item"
+              class="rec-card product"
               @click="goToProduct(product.id)"
             >
+              <div class="rec-badge">สินค้าแนะนำ</div>
               <h3>{{ product.name }}</h3>
-              <p class="product-price">{{ formatCurrency(product.price) }}</p>
-              <p class="product-reason" v-if="product.reason">{{ product.reason }}</p>
+              <p class="rec-price">{{ formatCurrency(product.price) }}</p>
+              <p class="rec-reason">{{ product.reason }}</p>
             </div>
-          </div>
-        </div>
 
-        <!-- Loan Recommendations -->
-        <div v-if="analysis.recommendations?.loans?.length" class="recommendations-card">
-          <h2>💳 สินเชื่อแนะนำ</h2>
-          <div class="loans-list">
+            <!-- Loan Recs -->
             <div
               v-for="loan in analysis.recommendations.loans"
               :key="loan.id"
-              class="loan-item"
+              class="rec-card loan"
               @click="goToLoan(loan.id)"
             >
+              <div class="rec-badge loan">สินเชื่อแนะนำ</div>
               <h3>{{ loan.name }}</h3>
-              <p class="loan-details">
-                วงเงิน: {{ formatCurrency(loan.min_amount) }} - {{ formatCurrency(loan.max_amount) }}
+              <p class="rec-detail">
+                วงเงินสูงสุด {{ formatCurrency(loan.max_amount) }}
               </p>
-              <p class="loan-reason" v-if="loan.reason">{{ loan.reason }}</p>
+              <p class="rec-reason">{{ loan.reason }}</p>
             </div>
           </div>
         </div>
       </div>
 
       <!-- Chat Widget -->
-      <AIChatWidget mode="money-coach" />
+      <AIChatWidget mode="money-coach" :context="chatContext" />
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import * as moneyCoachService from '@/services/moneyCoachService'
-import AIChatWidget from '@/components/chat/AIChatWidget.vue'
+import { ref, computed, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+import { Doughnut } from "vue-chartjs";
+import * as moneyCoachService from "@/services/moneyCoachService";
+import AIChatWidget from "@/components/chat/AIChatWidget.vue";
 
-const router = useRouter()
+// Register ChartJS components
+ChartJS.register(ArcElement, Tooltip, Legend);
 
-const analysis = ref(null)
-const loading = ref(true)
-const error = ref(null)
+const router = useRouter();
+
+const analysis = ref(null);
+const loading = ref(true);
+const error = ref(null);
+
+// Setup Form Data
+const setupData = ref({
+  income: null,
+  expense: null,
+  savings: null,
+});
+
+const isValidSetup = computed(() => {
+  return setupData.value.income > 0 && setupData.value.expense >= 0;
+});
+
+// Chart Configuration
+const chartData = computed(() => {
+  if (!analysis.value?.spendingAnalysis?.categories) return null;
+
+  const categories = analysis.value.spendingAnalysis.categories;
+  const labels = Object.keys(categories).map(getCategoryName);
+  const data = Object.values(categories);
+
+  return {
+    labels,
+    datasets: [
+      {
+        backgroundColor: [
+          "#FF6384",
+          "#36A2EB",
+          "#FFCE56",
+          "#4BC0C0",
+          "#9966FF",
+        ],
+        data,
+      },
+    ],
+  };
+});
+
+const chartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      position: "bottom",
+    },
+  },
+};
+
+const chatContext = computed(() => {
+  if (!analysis.value) return {};
+  return {
+    profile: analysis.value.profile,
+    spending: analysis.value.spendingAnalysis,
+    insights: analysis.value.insights,
+  };
+});
 
 const loadAnalysis = async () => {
-  loading.value = true
-  error.value = null
+  loading.value = true;
+  error.value = null;
 
   try {
-    analysis.value = await moneyCoachService.analyzeFinancialSituation()
+    const result = await moneyCoachService.analyzeFinancialSituation();
+    // If backend returns empty profile, we stay in setup mode (analysis=null or partial)
+    // Adjust logic based on your backend response structure
+    if (result && result.profile && result.profile.monthly_income > 0) {
+      analysis.value = result;
+    } else {
+      // Prepare empty analysis structure if needed, or just keep null to show setup
+      analysis.value = null;
+    }
   } catch (err) {
-    console.error('Failed to load financial analysis:', err)
-    error.value = err.message || 'ไม่สามารถโหลดข้อมูลได้'
+    console.warn("Analysis not found or error:", err);
+    // If 404/Not Found, it means no profile -> Show setup
+    analysis.value = null;
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
+const saveProfile = async () => {
+  loading.value = true;
+  try {
+    // Call service to save profile (Need to implement this in service if not exists)
+    // For now, mock it locally or assume updateProfile endpoint exists
+    await moneyCoachService.updateProfile({
+      monthly_income: setupData.value.income,
+      monthly_expenses: setupData.value.expense,
+      savings_goal: setupData.value.savings,
+    });
+
+    // Reload analysis
+    await loadAnalysis();
+  } catch (err) {
+    console.error("Failed to save profile:", err);
+    error.value = "บันทึกข้อมูลไม่สำเร็จ";
+    loading.value = false;
+  }
+};
+
+// ... existing helpers ...
 const formatCurrency = (amount) => {
-  if (!amount) return '0 บาท'
-  return new Intl.NumberFormat('th-TH', {
-    style: 'currency',
-    currency: 'THB',
+  if (!amount && amount !== 0) return "0 บาท";
+  return new Intl.NumberFormat("th-TH", {
+    style: "currency",
+    currency: "THB",
     minimumFractionDigits: 0,
-  }).format(amount)
-}
+  }).format(amount);
+};
 
 const getCategoryName = (category) => {
   const names = {
-    food: 'อาหาร',
-    transport: 'การเดินทาง',
-    shopping: 'ช้อปปิ้ง',
-    bills: 'ค่าใช้จ่าย',
-    entertainment: 'บันเทิง',
-    other: 'อื่นๆ',
+    food: "อาหาร",
+    transport: "เดินทาง",
+    shopping: "ช้อปปิ้ง",
+    bills: "บิล/สาธารณูปโภค",
+    entertainment: "บันเทิง",
+    other: "อื่นๆ",
+  };
+  return names[category] || category;
+};
+
+const getInsightIcon = (type) => {
+  switch (type) {
+    case "positive":
+      return "✅";
+    case "warning":
+      return "⚠️";
+    case "info":
+      return "ℹ️";
+    default:
+      return "💡";
   }
-  return names[category] || category
-}
+};
 
-const goToProduct = (productId) => {
-  router.push(`/products/${productId}`)
-}
-
-const goToLoan = (loanId) => {
-  router.push(`/loans/${loanId}`)
-}
+const goToProduct = (id) => router.push(`/products/${id}`);
+const goToLoan = (id) => router.push(`/loans/${id}`);
 
 onMounted(() => {
-  loadAnalysis()
-})
+  loadAnalysis();
+});
 </script>
 
 <style scoped>
 .money-coach-view {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #f3f4f6; /* Lighter background for better contrast */
   padding: 2rem 1rem;
 }
 
 .container {
   max-width: 1200px;
   margin: 0 auto;
+  padding-bottom: 80px; /* Space for chat widget */
 }
 
 .money-coach-header {
   text-align: center;
-  color: white;
   margin-bottom: 2rem;
 }
 
 .money-coach-header h1 {
   font-size: 2.5rem;
+  color: #1f2937;
   margin-bottom: 0.5rem;
 }
 
 .subtitle {
-  font-size: 1.2rem;
-  opacity: 0.9;
+  font-size: 1.1rem;
+  color: #6b7280;
 }
 
+/* Loading & Error */
 .loading-state,
 .error-state {
   text-align: center;
   padding: 3rem;
   background: white;
-  border-radius: 12px;
-  margin-bottom: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 .spinner {
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #667eea;
-  border-radius: 50%;
   width: 40px;
   height: 40px;
+  border: 4px solid #e5e7eb;
+  border-top-color: #4f46e5;
+  border-radius: 50%;
   animation: spin 1s linear infinite;
   margin: 0 auto 1rem;
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-.money-coach-content {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.summary-card,
-.spending-card,
-.insights-card,
-.recommendations-card {
+/* Setup Card */
+.setup-card {
   background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  padding: 2rem;
+  max-width: 600px;
+  margin: 0 auto;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  text-align: center;
 }
 
-.summary-card h2,
-.spending-card h2,
-.insights-card h2,
-.recommendations-card h2 {
+.setup-content h2 {
+  color: #111827;
+  margin-bottom: 0.5rem;
+}
+
+.setup-form {
+  margin-top: 1.5rem;
+  text-align: left;
+}
+
+.form-group {
   margin-bottom: 1rem;
-  color: #333;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.25rem;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.start-btn,
+.retry-btn {
+  width: 100%;
+  padding: 0.75rem;
+  background: #4f46e5;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.start-btn:hover:not(:disabled) {
+  background: #4338ca;
+}
+
+.start-btn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+/* Dashboard Layout */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Summary Card */
+.summary-card {
+  background: white;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 .summary-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
+  margin-top: 1rem;
 }
 
 .summary-item {
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.label {
-  font-size: 0.9rem;
-  color: #666;
-}
-
-.value {
-  font-size: 1.5rem;
-  font-weight: bold;
-}
-
-.value.income { color: #10b981; }
-.value.expense { color: #ef4444; }
-.value.balance { color: #3b82f6; }
-.value.goal { color: #8b5cf6; }
-
-.spending-categories {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-}
-
-.category-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 0.75rem;
+  align-items: center;
+  padding: 1rem;
   background: #f9fafb;
-  border-radius: 8px;
+  border-radius: 12px;
 }
 
-.spending-total {
+.icon-bg {
+  width: 48px;
+  height: 48px;
   display: flex;
-  justify-content: space-between;
-  padding-top: 1rem;
-  border-top: 2px solid #e5e7eb;
-  font-size: 1.1rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  font-size: 1.5rem;
+  margin-right: 1rem;
+}
+
+.income-bg {
+  background: #d1fae5;
+}
+.expense-bg {
+  background: #fee2e2;
+}
+.balance-bg {
+  background: #dbeafe;
+}
+.goal-bg {
+  background: #ede9fe;
+}
+
+.summary-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.summary-text .label {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.summary-text .value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+/* Chart Card */
+.chart-card {
+  background: white;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.chart-container {
+  height: 250px;
+  position: relative;
+  margin: 1rem 0;
+}
+
+/* Insights Card */
+.insights-card {
+  background: white;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 .insights-list {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 1rem;
+  margin-top: 1rem;
 }
 
 .insight-item {
+  display: flex;
+  align-items: flex-start;
   padding: 1rem;
   border-radius: 8px;
-  border-left: 4px solid;
+  background: #f3f4f6;
 }
 
 .insight-item.positive {
-  background: #d1fae5;
-  border-color: #10b981;
+  background: #ecfdf5;
+  border: 1px solid #d1fae5;
 }
-
 .insight-item.warning {
-  background: #fee2e2;
-  border-color: #ef4444;
+  background: #fef2f2;
+  border: 1px solid #fee2e2;
 }
-
 .insight-item.info {
-  background: #dbeafe;
-  border-color: #3b82f6;
+  background: #eff6ff;
+  border: 1px solid #dbeafe;
 }
 
-.products-grid,
-.loans-list {
+.insight-icon {
+  font-size: 1.25rem;
+  margin-right: 0.75rem;
+}
+
+/* Recommendations */
+.recommendations-section {
+  margin-top: 2rem;
+}
+
+.recommendations-section h2 {
+  font-size: 1.5rem;
+  color: #1f2937;
+  margin-bottom: 1rem;
+}
+
+.rec-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
 }
 
-.product-item,
-.loan-item {
-  padding: 1rem;
-  background: #f9fafb;
-  border-radius: 8px;
+.rec-card {
+  background: white;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   cursor: pointer;
-  transition: transform 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+  position: relative;
+  overflow: hidden;
 }
 
-.product-item:hover,
-.loan-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+.rec-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
 
-.product-price {
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: #667eea;
-  margin: 0.5rem 0;
+.rec-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-weight: 600;
+  background: #f3f4f6;
+  color: #374151;
 }
 
-.retry-btn {
-  margin-top: 1rem;
-  padding: 0.75rem 1.5rem;
-  background: #667eea;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
+.rec-badge.loan {
+  background: #dbeafe;
+  color: #1e40af;
 }
 
-@media (max-width: 768px) {
-  .summary-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .products-grid,
-  .loans-list {
-    grid-template-columns: 1fr;
-  }
+.rec-card h3 {
+  font-size: 1.1rem;
+  color: #111827;
+  margin-bottom: 0.5rem;
+  padding-right: 2rem;
+}
+
+.rec-price {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #4f46e5;
+  margin-bottom: 0.5rem;
+}
+
+.rec-detail {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #059669;
+  margin-bottom: 0.5rem;
+}
+
+.rec-reason {
+  font-size: 0.9rem;
+  color: #6b7280;
+  background: #fffbeb;
+  padding: 0.5rem;
+  border-radius: 6px;
 }
 </style>

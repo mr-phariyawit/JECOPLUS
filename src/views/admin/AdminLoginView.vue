@@ -70,6 +70,9 @@
       </form>
 
       <div class="admin-login__footer">
+        <button type="button" @click="clearStorage" class="admin-login__clear-btn">
+          🗑️ Clear Storage
+        </button>
         <a href="/" class="admin-login__link">Back to App</a>
       </div>
     </div>
@@ -125,6 +128,15 @@ const handleSubmit = async () => {
   if (result.success) {
     router.replace('/admin');
   }
+};
+
+const clearStorage = () => {
+  localStorage.removeItem('jecoplus_admin_token');
+  localStorage.removeItem('jecoplus_admin_refresh_token');
+  adminStore.isAuthenticated = false;
+  adminStore.admin = null;
+  alert('✅ Admin storage cleared! You can now login with fresh credentials.');
+  window.location.reload();
 };
 </script>
 
@@ -301,6 +313,25 @@ const handleSubmit = async () => {
   margin-top: var(--space-lg);
   padding-top: var(--space-lg);
   border-top: 1px solid var(--color-gray-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.admin-login__clear-btn {
+  background: #f3f4f6;
+  color: #6b7280;
+  border: 1px solid #e5e7eb;
+  padding: var(--space-xs) var(--space-md);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-small);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.admin-login__clear-btn:hover {
+  background: #e5e7eb;
+  color: #374151;
 }
 
 .admin-login__link {

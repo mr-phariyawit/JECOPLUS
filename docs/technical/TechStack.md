@@ -1,0 +1,81 @@
+# JECOPLUS Tech Stack Report
+
+## 📋 Executive Summary
+
+JECOPLUS is a modern "Super App" financial platform built with a clear separation of concerns: a reactive SPA frontend (Vue 3) and a robust RESTful backend (Node.js/Express). A key differentiator is its **Multi-Model AI Architecture**, leveraging Google Vertex AI, Gemini, and Anthropic Claude for intelligent features like credit scoring and financial advice. It relies on PostgreSQL for structured data and Firebase for auth/hosting.
+
+---
+
+## 💻 Frontend Architecture
+
+The frontend is a Single Page Application (SPA) focused on performance and developer experience.
+
+| Category | Technology | Version | Purpose |
+| :--- | :--- | :--- | :--- |
+| **Core Framework** | [Vue.js 3](https://vuejs.org/) | ^3.5.24 | Composition API-based UI framework. |
+| **Build Tool** | [Vite](https://vitejs.dev/) | ^7.2.4 | Next-generation frontend tooling for ultra-fast dev server and bundling. |
+| **State Management** | [Pinia](https://pinia.vuejs.org/) | ^3.0.4 | Modern, type-safe state management store for Vue. |
+| **Routing** | [Vue Router](https://router.vuejs.org/) | ^4.6.3 | Official router for SPA navigation. |
+| **Networking** | [Axios](https://axios-http.com/) | ^1.13.2 | Promise-based HTTP client for API communication. |
+| **Authentication** | [Firebase SDK](https://firebase.google.com/) | ^12.8.0 | Handles client-side auth flows (Google, Phone, etc.). |
+| **Utilities** | [VueUse](https://vueuse.org/) | ^14.1.0 | Collection of essential Vue Composition Utilities. |
+| **Testing** | [Vitest](https://vitest.dev/) | ^4.0.17 | Blazing fast unit test framework (Jest-compatible). |
+
+---
+
+## ⚙️ Backend Architecture
+
+The backend is a REST API providing business logic, AI orchestration, and database management.
+
+| Category | Technology | Version | Purpose |
+| :--- | :--- | :--- | :--- |
+| **Runtime** | [Node.js](https://nodejs.org/) | >=20.0.0 | JavaScript runtime environment. |
+| **Framework** | [Express](https://expressjs.com/) | ^4.21.2 | Minimalist web framework for API routing and middleware. |
+| **Database** | [PostgreSQL](https://www.postgresql.org/) | ^8.13.1 | Relational database system (via `pg` driver). |
+| **Validation** | [Joi](https://joi.dev/) | ^17.13.3 | Schema description language and data validator. |
+| **Security** | [Helmet](https://helmetjs.github.io/) | ^8.0.0 | Secure HTTP headers. |
+| **Security** | [Bcrypt](https://www.npmjs.com/package/bcrypt) | ^5.1.1 | Password hashing. |
+| **Security** | [JWT](https://jwt.io/) | ^9.0.2 | JSON Web Token for stateless authentication. |
+| **Admin SDK** | [Firebase Admin](https://firebase.google.com/docs/admin/setup) | ^13.0.2 | Server-side Firebase interaction (Auth verify, FCM, etc.). |
+| **Logging** | [Winston](https://github.com/winstonjs/winston) | ^3.17.0 | Versatile logging library. |
+| **Job Scheduling** | [Node-Cron](https://github.com/node-cron/node-cron) | ^3.0.3 | Task scheduling (cron jobs). |
+
+---
+
+## 🧠 AI & Machine Learning Stack
+
+JECOPLUS utilizes a **Multi-Model** approach to deliver best-in-class AI features.
+
+| Provider | Model/Service | Use Case |
+| :--- | :--- | :--- |
+| **Google Cloud** | **Vertex AI** (`@google-cloud/vertexai`) | Enterprise-grade ML model serving and orchestration. |
+| **Google Cloud** | **Gemini** (`@google/generative-ai`) | General-purpose capability, chat, and reasoning. |
+| **Google Cloud** | **Vision API** (`@google-cloud/vision`) | **OCR & KYC**: Extracting data from ID cards and documents. |
+| **Anthropic** | **Claude** (`@anthropic-ai/sdk`) | Specialized reasoning, financial analysis, or complex conversation flows where Claude aligns better. |
+
+> **Note**: This hybrid approach allows the system to switch models based on task complexity, cost, or specific model strengths (e.g., using Vision for OCR and Claude/Gemini for financial advice).
+
+---
+
+## ☁️ Infrastructure & DevOps
+
+| Component | Service | Metadata |
+| :--- | :--- | :--- |
+| **Hosting (Frontend)** | **Firebase Hosting** | Multi-target configuration (`staging`, `production`) with heavy caching policies. |
+| **Hosting (Backend)** | **Self-Hosted / Cloud Run** | (Implied) Backend runs as a standalone Node process, likely containerized for Cloud Run or similar. |
+| **Database Hosting** | **Cloud SQL / Self-Hosted** | PostgreSQL instance. |
+| **Storage** | **AWS S3** (`@aws-sdk/client-s3`) | Object storage for user documents, KYC images, etc. |
+| **CI/CD** | **GitHub Actions** | Automated testing and deployment workflows (found in `.github` directory). |
+
+---
+
+## 🛡️ Security Highlights
+
+1.  **Rate Limiting**: `express-rate-limit` prevents abuse.
+2.  **CORS**: Strict `cors` configuration for allowed origins.
+3.  **Headers**: `helmet` sets security headers (HSTS, etc.).
+4.  **Data Validation**: `joi` ensures all inputs are sanitized.
+5.  **Auth**: Dual-layer authentication with Firebase (Identity) and Custom JWT (Session management).
+
+---
+*Report generated by Antigravity AI | 2026-01-22*

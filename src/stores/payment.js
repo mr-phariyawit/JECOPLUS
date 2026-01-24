@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { paymentMethods, linkedCards, linkedBanks } from '../services/mockData'
+import * as dataService from '@/services/dataService'
 
 export const usePaymentStore = defineStore('payment', () => {
     // State
@@ -15,10 +15,13 @@ export const usePaymentStore = defineStore('payment', () => {
 
     // Actions
     const fetchPaymentMethods = async () => {
-        await new Promise(resolve => setTimeout(resolve, 300))
-        methods.value = paymentMethods
-        cards.value = linkedCards
-        banks.value = linkedBanks
+        try {
+            methods.value = await dataService.getPaymentMethods()
+            cards.value = await dataService.getLinkedCards()
+            banks.value = await dataService.getLinkedBanks()
+        } catch (error) {
+            console.error('Failed to fetch payment methods:', error)
+        }
     }
 
     const selectMethod = (methodType) => {
@@ -125,6 +128,14 @@ export const usePaymentStore = defineStore('payment', () => {
 
     const removeBank = (bankId) => {
         banks.value = banks.value.filter(b => b.bankId !== bankId)
+    }
+
+    // Listen for scenario changes
+    if (typeof window !== 'undefined') {
+        window.addEventListener('scenario:changed', () => {
+            console.log('Payment store: Scenario changed, refreshing payment methods')
+            fetchPaymentMethods()
+        })
     }
 
     return {

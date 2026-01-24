@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Input Events</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        input { padding: 10px; font-size: 16px; width: 300px; }
+        .log { background: #f5f5f5; padding: 10px; margin-top: 10px; max-height: 400px; overflow-y: auto; }
+        .event { margin: 5px 0; padding: 5px; background: white; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Debug: Input Event Testing</h1>
+
+    <p>พิมพ์ข้อความในช่องนี้:</p>
+    <input type="text" id="testInput" placeholder="พิมพ์ที่นี่...">
+
+    <p>Token ใน localStorage:</p>
+    <div id="tokenInfo" style="background: #ffe; padding: 10px;"></div>
+
+    <p>Event Logs:</p>
+    <div class="log" id="eventLog"></div>
+
+    <script>
+        const input = document.getElementById('testInput');
+        const log = document.getElementById('eventLog');
+        const tokenInfo = document.getElementById('tokenInfo');
+
+        // Show token info
+        function showTokenInfo() {
+            const token = localStorage.getItem('jecoplus_access_token');
+            const csrf = localStorage.getItem('csrf_token');
+
+            if (token) {
+                try {
+                    const payload = JSON.parse(atob(token.split('.')[1]));
+                    const exp = new Date(payload.exp * 1000);
+                    const now = new Date();
+                    const remaining = Math.floor((exp - now) / 1000 / 60);
+
+                    tokenInfo.innerHTML = `
+                        ✅ Token: ${token.substring(0, 30)}...<br>
+                        ⏰ Expires: ${exp.toLocaleString()}<br>
+                        ⌛ Remaining: ${remaining} minutes<br>
+                        ${exp < now ? '❌ TOKEN EXPIRED!' : '✅ Token valid'}<br>
+                        🛡️ CSRF: ${csrf ? csrf.substring(0, 20) + '...' : '❌ None'}
+                    `;
+                } catch (e) {
+                    tokenInfo.innerHTML = `❌ Cannot decode token: ${e.message}`;
+                }
+            } else {
+                tokenInfo.innerHTML = '❌ No token found';
+            }
+        }
+
+        showTokenInfo();
+        setInterval(showTokenInfo, 5000); // Update every 5s
+
+        // Log all input events
+        const events = ['input', 'keydown', 'keyup', 'keypress', 'change', 'focus', 'blur'];
+
+        events.forEach(eventName => {
+            input.addEventListener(eventName, (e) => {
+                const div = document.createElement('div');
+                div.className = 'event';
+                div.innerHTML = `
+                    [${new Date().toLocaleTimeString()}]
+                    <strong>${eventName}</strong>:
+                    key="${e.key || 'N/A'}"
+                    value="${e.target.value}"
+                `;
+                log.insertBefore(div, log.firstChild);
+
+                console.log(`[Event] ${eventName}:`, {
+                    key: e.key,
+                    value: e.target.value,
+                    timestamp: new Date().toISOString()
+                });
+            });
+        });
+
+        // Monitor for navigation
+        let navigationDetected = false;
+        window.addEventListener('beforeunload', (e) => {
+            if (!navigationDetected) {
+                navigationDetected = true;
+                console.error('[NAVIGATION] Page is about to redirect!');
+                alert('⚠️ กำลังจะ redirect! เช็ค console logs');
+            }
+        });
+
+        // Monitor window.location changes
+        const originalLocation = window.location.href;
+        setInterval(() => {
+            if (window.location.href !== originalLocation) {
+                console.error('[REDIRECT] Window location changed!', {
+                    from: originalLocation,
+                    to: window.location.href
+                });
+            }
+        }, 100);
+    </script>
+</body>
+</html>

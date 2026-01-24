@@ -13,6 +13,15 @@
       <span>Loading loan data...</span>
     </div>
 
+    <div v-else-if="adminStore.error" class="loan-review__error">
+      <div class="loan-review__error-icon">⚠️</div>
+      <h3>Failed to Load Loan</h3>
+      <p>{{ adminStore.error }}</p>
+      <button class="loan-review__btn loan-review__btn--secondary" @click="retry">
+        Retry
+      </button>
+    </div>
+
     <template v-else-if="loanData">
       <div class="loan-review__grid">
         <!-- Main Column -->
@@ -378,7 +387,13 @@ const handleReject = async () => {
   }
 };
 
+const retry = () => {
+  adminStore.clearError();
+  adminStore.fetchLoanDetail(route.params.loanId);
+};
+
 onMounted(() => {
+  console.log('[AdminLoanReviewView] Fetching loan detail:', route.params.loanId);
   adminStore.fetchLoanDetail(route.params.loanId);
 });
 </script>
@@ -408,6 +423,33 @@ onMounted(() => {
   padding: var(--space-2xl);
   gap: var(--space-md);
   color: var(--color-gray-4);
+}
+
+.loan-review__error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2xl);
+  gap: var(--space-md);
+  text-align: center;
+}
+
+.loan-review__error-icon {
+  font-size: 48px;
+}
+
+.loan-review__error h3 {
+  font-size: var(--font-size-title);
+  font-weight: var(--font-weight-bold);
+  margin: 0;
+  color: var(--color-error);
+}
+
+.loan-review__error p {
+  margin: 0;
+  color: var(--color-gray-4);
+  max-width: 400px;
 }
 
 .loan-review__spinner {

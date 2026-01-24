@@ -1,6 +1,8 @@
 <template>
   <div class="kyc-idcard screen screen--no-nav">
-    <JHeader :title="side === 'front' ? 'ถ่ายบัตรด้านหน้า' : 'ถ่ายบัตรด้านหลัง'" />
+    <JHeader
+      :title="side === 'front' ? 'ถ่ายบัตรด้านหน้า' : 'ถ่ายบัตรด้านหลัง'"
+    />
 
     <div class="kyc-idcard__content">
       <div class="kyc-idcard__preview">
@@ -21,15 +23,32 @@
         />
 
         <div v-if="!capturedImage" class="kyc-idcard__frame">
-          <div class="kyc-idcard__frame-corner kyc-idcard__frame-corner--tl"></div>
-          <div class="kyc-idcard__frame-corner kyc-idcard__frame-corner--tr"></div>
-          <div class="kyc-idcard__frame-corner kyc-idcard__frame-corner--bl"></div>
-          <div class="kyc-idcard__frame-corner kyc-idcard__frame-corner--br"></div>
+          <div
+            class="kyc-idcard__frame-corner kyc-idcard__frame-corner--tl"
+          ></div>
+          <div
+            class="kyc-idcard__frame-corner kyc-idcard__frame-corner--tr"
+          ></div>
+          <div
+            class="kyc-idcard__frame-corner kyc-idcard__frame-corner--bl"
+          ></div>
+          <div
+            class="kyc-idcard__frame-corner kyc-idcard__frame-corner--br"
+          ></div>
+
+          <!-- Scanning Beam -->
+          <div v-if="isScanning" class="kyc-idcard__scan-beam"></div>
         </div>
       </div>
 
       <p v-if="!capturedImage" class="kyc-idcard__hint">
-        {{ side === 'front' ? 'วางบัตรประชาชนด้านหน้าให้อยู่ในกรอบ' : 'วางบัตรประชาชนด้านหลังให้อยู่ในกรอบ' }}
+        {{
+          isScanning
+            ? "กำลังสแกน..."
+            : side === "front"
+              ? "วางบัตรประชาชนด้านหน้าให้อยู่ในกรอบ"
+              : "วางบัตรประชาชนด้านหลังให้อยู่ในกรอบ"
+        }}
       </p>
 
       <div v-if="error" class="kyc-idcard__error">
@@ -37,11 +56,17 @@
       </div>
 
       <!-- OCR Preview -->
-      <div v-if="capturedImage && kycStore.ocrResult && side === 'front'" class="kyc-idcard__ocr">
+      <div
+        v-if="capturedImage && kycStore.ocrResult && side === 'front'"
+        class="kyc-idcard__ocr"
+      >
         <p class="kyc-idcard__ocr-title">ข้อมูลที่อ่านได้:</p>
         <div class="kyc-idcard__ocr-item">
           <span class="label">ชื่อ-นามสกุล:</span>
-          <span>{{ kycStore.ocrResult.firstName }} {{ kycStore.ocrResult.lastName }}</span>
+          <span
+            >{{ kycStore.ocrResult.firstName }}
+            {{ kycStore.ocrResult.lastName }}</span
+          >
         </div>
         <div class="kyc-idcard__ocr-item">
           <span class="label">เลขบัตร:</span>
@@ -54,23 +79,21 @@
       <template v-if="!capturedImage">
         <JButton
           variant="primary"
-          :disabled="!cameraReady"
-          @click="capture"
+          :disabled="!cameraReady || isScanning"
+          @click="handleCapture"
         >
-          ถ่ายภาพ
+          {{ isScanning ? "กำลังสแกน..." : "ถ่ายภาพ" }}
         </JButton>
       </template>
 
       <template v-else>
-        <JButton variant="secondary" @click="retake">
-          ถ่ายใหม่
-        </JButton>
+        <JButton variant="secondary" @click="retake"> ถ่ายใหม่ </JButton>
         <JButton
           variant="primary"
           :loading="kycStore.isLoading"
           @click="confirm"
         >
-          {{ side === 'front' ? 'ถัดไป' : 'ยืนยัน' }}
+          {{ side === "front" ? "ถัดไป" : "ยืนยัน" }}
         </JButton>
       </template>
     </div>
@@ -78,27 +101,35 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
-import { useKycStore } from '../../stores/kyc';
-import { useCamera } from '../../composables/useCamera';
-import JHeader from '../../components/layout/JHeader.vue';
-import JButton from '../../components/base/JButton.vue';
+import { ref, onMounted, onUnmounted } from "vue";
+import { useRouter, useRoute } from "vue-router";
+import { useKycStore } from "../../stores/kyc";
+import { useDemoStore } from "../../stores/demo";
+import { useCamera } from "../../composables/useCamera";
+import JHeader from "../../components/layout/JHeader.vue";
+import JButton from "../../components/base/JButton.vue";
 
 const router = useRouter();
 const route = useRoute();
 const kycStore = useKycStore();
 
-const { videoRef, isReady: cameraReady, error: cameraError, startCamera, stopCamera, capturePhoto } = useCamera();
+const {
+  videoRef,
+  isReady: cameraReady,
+  error: cameraError,
+  startCamera,
+  stopCamera,
+  capturePhoto,
+} = useCamera();
 
-const side = ref('front');
+const side = ref("front");
 const capturedImage = ref(null);
 const capturedBlob = ref(null);
 const error = ref(null);
 
 const formatCitizenId = (id) => {
-  if (!id) return '';
-  return id.replace(/(\d{1})(\d{4})(\d{5})(\d{2})(\d{1})/, '$1-$2-$3-$4-$5');
+  if (!id) return "";
+  return id.replace(/(\d{1})(\d{4})(\d{5})(\d{2})(\d{1})/, "$1-$2-$3-$4-$5");
 };
 
 const capture = async () => {
@@ -108,7 +139,7 @@ const capture = async () => {
     capturedImage.value = dataUrl;
     capturedBlob.value = blob;
   } catch (err) {
-    error.value = 'ไม่สามารถถ่ายภาพได้ กรุณาลองใหม่';
+    error.value = "ไม่สามารถถ่ายภาพได้ กรุณาลองใหม่";
   }
 };
 
@@ -121,16 +152,18 @@ const retake = () => {
 const confirm = async () => {
   if (!capturedBlob.value) return;
 
-  const file = new File([capturedBlob.value], `id-card-${side.value}.jpg`, { type: 'image/jpeg' });
+  const file = new File([capturedBlob.value], `id-card-${side.value}.jpg`, {
+    type: "image/jpeg",
+  });
   const result = await kycStore.uploadIdCard(side.value, file);
 
   if (result.success) {
-    if (side.value === 'front') {
+    if (side.value === "front") {
       // Move to OCR confirmation page
-      router.push('/kyc/ocr-confirm');
+      router.push("/kyc/ocr-confirm");
     } else {
       // Move to selfie
-      router.push('/kyc/selfie');
+      router.push("/kyc/selfie");
     }
   } else {
     error.value = result.error;
@@ -139,18 +172,53 @@ const confirm = async () => {
 
 onMounted(async () => {
   // Check if session exists
-  if (!kycStore.sessionId) {
-    router.replace('/kyc');
+  const demoStore = useDemoStore();
+  if (!kycStore.sessionId && !demoStore.isDemoMode) {
+    router.replace("/kyc");
     return;
   }
 
   // Start camera (back camera for ID card)
-  await startCamera('environment');
+  await startCamera("environment");
 });
 
 onUnmounted(() => {
   stopCamera();
 });
+
+// Demo Mode: Mock OCR
+const demoStore = useDemoStore();
+const isScanning = ref(false);
+
+const performDemoCapture = async () => {
+  if (isScanning.value) return;
+
+  isScanning.value = true;
+  await demoStore.simulateDelay(2000); // 2s scanning animation
+
+  // Mock Image (placeholder)
+  capturedImage.value = "https://placehold.co/600x400/png?text=E-ID+Card";
+  capturedBlob.value = new Blob([""], { type: "image/jpeg" });
+
+  isScanning.value = false;
+
+  // Mock OCR Result
+  kycStore.setOcrResult({
+    firstName: demoStore.mockUser.firstName,
+    lastName: demoStore.mockUser.lastName,
+    citizenId: "1-1037-02499-63-2",
+  });
+};
+
+// Intercept capture for demo
+const originalCapture = capture;
+const handleCapture = () => {
+  if (demoStore.isDemoMode) {
+    performDemoCapture();
+  } else {
+    originalCapture();
+  }
+};
 </script>
 
 <style scoped>
@@ -234,6 +302,30 @@ onUnmounted(() => {
   right: 0;
   border-left: none;
   border-top: none;
+}
+
+.kyc-idcard__scan-beam {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #00ff00;
+  box-shadow: 0 0 10px #00ff00;
+  animation: scan 2s linear infinite;
+  opacity: 0.8;
+}
+
+@keyframes scan {
+  0% {
+    top: 0;
+  }
+  50% {
+    top: 100%;
+  }
+  100% {
+    top: 0;
+  }
 }
 
 .kyc-idcard__hint {

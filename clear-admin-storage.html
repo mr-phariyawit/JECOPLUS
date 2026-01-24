@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clear Admin Storage - JECO+</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+            padding: 40px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        .info {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 16px;
+            text-align: left;
+            margin-bottom: 24px;
+            border-radius: 4px;
+        }
+
+        .info p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+
+        .info p:last-child {
+            margin-bottom: 0;
+        }
+
+        .credentials {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+        }
+
+        .credentials h3 {
+            color: #856404;
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+
+        .credential-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #ffe69c;
+        }
+
+        .credential-item:last-child {
+            border-bottom: none;
+        }
+
+        .credential-label {
+            color: #856404;
+            font-weight: 600;
+        }
+
+        .credential-value {
+            color: #856404;
+            font-family: 'Courier New', monospace;
+        }
+
+        .button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 12px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.4);
+        }
+
+        .button:active {
+            transform: translateY(0);
+        }
+
+        .button.secondary {
+            background: #6c757d;
+        }
+
+        .button.secondary:hover {
+            box-shadow: 0 8px 16px rgba(108, 117, 125, 0.4);
+        }
+
+        .status {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .status.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            display: block;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            display: block;
+        }
+
+        .storage-info {
+            background: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            text-align: left;
+        }
+
+        .storage-info h4 {
+            color: #004085;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .storage-item {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: #004085;
+            padding: 4px 0;
+            word-break: break-all;
+        }
+
+        .storage-item.empty {
+            color: #999;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Clear Admin Storage</h1>
+
+        <div class="info">
+            <p><strong>ปัญหา:</strong> คุณโดนเด้งออกจากหน้า admin</p>
+            <p><strong>สาเหตุ:</strong> Token ใน localStorage อาจหมดอายุหรือไม่ถูกต้อง</p>
+            <p><strong>การแก้ไข:</strong> ลบ token เก่าและ login ใหม่อีกครั้ง</p>
+        </div>
+
+        <div class="credentials">
+            <h3>📝 ข้อมูล Admin สำหรับ Login</h3>
+            <div class="credential-item">
+                <span class="credential-label">Email:</span>
+                <span class="credential-value">admin@jecoplus.com</span>
+            </div>
+            <div class="credential-item">
+                <span class="credential-label">Password:</span>
+                <span class="credential-value">admin123</span>
+            </div>
+        </div>
+
+        <div class="storage-info">
+            <h4>📦 Current Storage:</h4>
+            <div id="storageList"></div>
+        </div>
+
+        <button class="button" onclick="clearStorage()">
+            🗑️ ลบ Admin Token ทั้งหมด
+        </button>
+
+        <button class="button secondary" onclick="goToAdminLogin()">
+            🔐 ไปหน้า Admin Login
+        </button>
+
+        <div id="status" class="status"></div>
+    </div>
+
+    <script>
+        // Display current storage
+        function displayStorage() {
+            const storageList = document.getElementById('storageList');
+            const adminToken = localStorage.getItem('jecoplus_admin_token');
+            const adminRefreshToken = localStorage.getItem('jecoplus_admin_refresh_token');
+
+            let html = '';
+            if (adminToken) {
+                html += `<div class="storage-item">jecoplus_admin_token: ${adminToken.substring(0, 50)}...</div>`;
+            }
+            if (adminRefreshToken) {
+                html += `<div class="storage-item">jecoplus_admin_refresh_token: ${adminRefreshToken.substring(0, 50)}...</div>`;
+            }
+
+            if (!adminToken && !adminRefreshToken) {
+                html = '<div class="storage-item empty">ไม่มี admin token ใน localStorage</div>';
+            }
+
+            storageList.innerHTML = html;
+        }
+
+        // Clear admin storage
+        function clearStorage() {
+            try {
+                // Remove admin tokens
+                localStorage.removeItem('jecoplus_admin_token');
+                localStorage.removeItem('jecoplus_admin_refresh_token');
+
+                // Show success message
+                const status = document.getElementById('status');
+                status.className = 'status success';
+                status.textContent = '✅ ลบ admin token สำเร็จ! คุณสามารถ login ใหม่ได้แล้ว';
+
+                // Update storage display
+                displayStorage();
+
+                // Auto redirect after 2 seconds
+                setTimeout(() => {
+                    window.location.href = '/admin/login';
+                }, 2000);
+            } catch (error) {
+                const status = document.getElementById('status');
+                status.className = 'status error';
+                status.textContent = '❌ เกิดข้อผิดพลาด: ' + error.message;
+            }
+        }
+
+        // Go to admin login
+        function goToAdminLogin() {
+            window.location.href = '/admin/login';
+        }
+
+        // Initialize
+        displayStorage();
+    </script>
+</body>
+</html>

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Chat Flow</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+        }
+        .log {
+            background: #f5f5f5;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .error { color: red; }
+        .success { color: green; }
+        .info { color: blue; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test AI Chat Flow</h1>
+
+    <div>
+        <h3>Step 1: Authentication</h3>
+        <input type="text" id="phone" value="0888888888" placeholder="Phone number">
+        <button onclick="requestOTP()">1. Request OTP</button>
+        <input type="text" id="otp" placeholder="OTP Code" style="width: 100px;">
+        <button onclick="verifyOTP()">2. Verify OTP</button>
+    </div>
+
+    <div>
+        <h3>Step 2: Send Chat Message</h3>
+        <input type="text" id="message" value="สวัสดีครับ ทดสอบระบบ" style="width: 300px;">
+        <button onclick="sendChat()">3. Send Chat</button>
+    </div>
+
+    <div>
+        <h3>Debug Info</h3>
+        <button onclick="checkToken()">Check Token</button>
+        <button onclick="checkCSRF()">Check CSRF</button>
+        <button onclick="clearAll()">Clear All</button>
+    </div>
+
+    <div class="log" id="log"></div>
+
+    <script>
+        const API_URL = 'http://localhost:3002/api/v1';
+        let sessionId = '';
+        let accessToken = '';
+        let csrfToken = '';
+
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            const time = new Date().toLocaleTimeString();
+            logDiv.innerHTML += `<div class="${type}">[${time}] ${message}</div>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        async function requestOTP() {
+            try {
+                const phone = document.getElementById('phone').value;
+                log('Requesting OTP for ' + phone + '...');
+
+                const response = await fetch(`${API_URL}/auth/otp/request`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        phone,
+                        deviceId: 'test-device-html'
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    sessionId = data.data.sessionId;
+                    log(`✅ OTP sent! Session: ${sessionId}`, 'success');
+                    if (data.data.devOtp) {
+                        document.getElementById('otp').value = data.data.devOtp;
+                        log(`📱 Dev OTP: ${data.data.devOtp}`, 'info');
+                    }
+                } else {
+                    log(`❌ Error: ${data.error.message}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Network error: ${error.message}`, 'error');
+            }
+        }
+
+        async function verifyOTP() {
+            try {
+                const otp = document.getElementById('otp').value;
+                log('Verifying OTP...');
+
+                const response = await fetch(`${API_URL}/auth/otp/verify`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        sessionId,
+                        otp,
+                        deviceId: 'test-device-html'
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    accessToken = data.data.accessToken;
+                    csrfToken = data.data.csrfToken;
+
+                    // Save to localStorage (simulate frontend behavior)
+                    localStorage.setItem('jecoplus_access_token', accessToken);
+                    localStorage.setItem('csrf_token', csrfToken);
+
+                    log(`✅ Logged in! User: ${data.data.user.phone}`, 'success');
+                    log(`🔑 Token: ${accessToken.substring(0, 30)}...`, 'info');
+                    log(`🛡️ CSRF: ${csrfToken.substring(0, 20)}...`, 'info');
+                } else {
+                    log(`❌ Error: ${data.error.message}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Network error: ${error.message}`, 'error');
+            }
+        }
+
+        async function sendChat() {
+            try {
+                const message = document.getElementById('message').value;
+                log('Sending chat message...');
+
+                // Get token from localStorage (simulate frontend behavior)
+                const token = localStorage.getItem('jecoplus_access_token');
+                const csrf = localStorage.getItem('csrf_token');
+
+                if (!token) {
+                    log('❌ No token found! Please login first.', 'error');
+                    return;
+                }
+
+                log(`📤 Message: "${message}"`, 'info');
+                log(`🔑 Using token: ${token.substring(0, 30)}...`, 'info');
+
+                const headers = {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                };
+
+                if (csrf) {
+                    headers['X-CSRF-Token'] = csrf;
+                    log(`🛡️ Using CSRF: ${csrf.substring(0, 20)}...`, 'info');
+                }
+
+                const response = await fetch(`${API_URL}/chat/messages`, {
+                    method: 'POST',
+                    headers,
+                    body: JSON.stringify({
+                        message,
+                        provider: 'gemini'
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.status === 401) {
+                    log(`❌ 401 Unauthorized: ${data.error.message}`, 'error');
+                    log('⚠️ This would trigger redirect to /login in real app', 'error');
+                    return;
+                }
+
+                if (data.success) {
+                    log(`✅ Chat response received!`, 'success');
+                    log(`🤖 AI: ${data.data.text.substring(0, 100)}...`, 'success');
+                    log(`📊 Conversation ID: ${data.data.conversationId}`, 'info');
+                } else {
+                    log(`❌ Error: ${data.error.message}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Network error: ${error.message}`, 'error');
+            }
+        }
+
+        function checkToken() {
+            const token = localStorage.getItem('jecoplus_access_token');
+            const csrf = localStorage.getItem('csrf_token');
+
+            if (token) {
+                log(`🔑 Token exists: ${token.substring(0, 50)}...`, 'info');
+
+                // Decode JWT to check expiry
+                try {
+                    const payload = JSON.parse(atob(token.split('.')[1]));
+                    const exp = new Date(payload.exp * 1000);
+                    const now = new Date();
+                    const remaining = Math.floor((exp - now) / 1000 / 60);
+
+                    log(`⏰ Expires: ${exp.toLocaleString()} (${remaining} min remaining)`, 'info');
+
+                    if (exp < now) {
+                        log(`❌ Token is EXPIRED!`, 'error');
+                    }
+                } catch (e) {
+                    log(`❌ Cannot decode token: ${e.message}`, 'error');
+                }
+            } else {
+                log('❌ No token found in localStorage', 'error');
+            }
+
+            if (csrf) {
+                log(`🛡️ CSRF exists: ${csrf.substring(0, 30)}...`, 'info');
+            } else {
+                log('⚠️ No CSRF token found', 'error');
+            }
+        }
+
+        async function checkCSRF() {
+            try {
+                const response = await fetch(`${API_URL}/csrf-token`);
+                const data = await response.json();
+                log(`🛡️ CSRF from server: ${data.csrfToken.substring(0, 30)}...`, 'info');
+            } catch (error) {
+                log(`❌ Error getting CSRF: ${error.message}`, 'error');
+            }
+        }
+
+        function clearAll() {
+            localStorage.clear();
+            sessionId = '';
+            accessToken = '';
+            csrfToken = '';
+            log('🧹 Cleared all tokens and localStorage', 'info');
+        }
+
+        // Auto-check token on load
+        window.onload = () => {
+            log('🚀 Test page loaded. Backend: ' + API_URL, 'info');
+            checkToken();
+        };
+    </script>
+</body>
+</html>

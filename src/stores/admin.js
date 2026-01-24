@@ -66,13 +66,18 @@ export const useAdminStore = defineStore('admin', () => {
   const initSession = () => {
     const token = adminService.getAdminToken();
     if (token) {
-      // Token exists, assume authenticated
-      // In production, you'd verify the token here
-      isAuthenticated.value = true;
-
-      // Try to parse admin info from token
+      // Try to parse admin info from token first
       try {
         const payload = JSON.parse(atob(token.split('.')[1]));
+
+        // Check if token is expired
+        if (payload.exp && payload.exp * 1000 < Date.now()) {
+          // Token expired, clear session
+          logout();
+          return;
+        }
+
+        // Token is valid, set authenticated state
         admin.value = {
           id: payload.sub,
           email: payload.email,
@@ -80,6 +85,7 @@ export const useAdminStore = defineStore('admin', () => {
           firstName: payload.firstName,
           lastName: payload.lastName,
         };
+        isAuthenticated.value = true;
       } catch (e) {
         // Token invalid, clear session
         logout();

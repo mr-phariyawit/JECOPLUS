@@ -55,8 +55,10 @@ describe('Security Headers', () => {
         const res = await request(app).get('/');
         const csp = res.headers['content-security-policy'];
         expect(csp).toBeDefined();
-        // Check for removed unsafe-inline
-        expect(csp).not.toContain("'unsafe-inline'");
+        // Verify unsafe-inline is NOT in script-src (security critical)
+        // Note: style-src allows 'unsafe-inline' for framework compatibility
+        expect(csp).toContain("script-src 'self'");
+        expect(csp).not.toMatch(/script-src[^;]*'unsafe-inline'/);
         // Check for defaults
         expect(csp).toContain("default-src 'self'");
         expect(csp).toContain("object-src 'none'");

@@ -9,7 +9,7 @@ import config from './config/index.js';
 import logger from './utils/logger.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 import { globalRateLimiter } from './middleware/rateLimiter.js';
-import { getCSRFToken, setCSRFToken } from './middleware/csrf.js';
+import { getCSRFToken, setCSRFToken, validateCSRFToken } from './middleware/csrf.js';
 
 // Import routes
 import authRoutes from './routes/auth.js';
@@ -62,21 +62,23 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      styleSrc: ["'self'"], // Removed unsafe-inline
+      styleSrc: ["'self'", "'unsafe-inline'"], // Needed for some UI libraries, consider moving to nonces later
       scriptSrc: ["'self'"],
       imgSrc: [
         "'self'",
         'data:',
-        'https://storage.googleapis.com', // Specific domain only
+        'https://storage.googleapis.com',
       ],
       connectSrc: ["'self'"],
-      fontSrc: ["'self'"],
+      fontSrc: ["'self'", 'https://fonts.gstatic.com'],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
       frameSrc: ["'none'"],
+      baseUri: ["'self'"],
+      formAction: ["'self'"],
     },
   },
-  crossOriginEmbedderPolicy: true, // Enabled
+  crossOriginEmbedderPolicy: false, // Disabled for now to prevent issues with loading resources
   crossOriginOpenerPolicy: { policy: 'same-origin' },
   crossOriginResourcePolicy: { policy: 'cross-origin' },
   dnsPrefetchControl: { allow: false },
@@ -108,6 +110,9 @@ app.use(morgan(config.logging.format, {
 
 // Global rate limiting
 app.use(globalRateLimiter);
+
+// CSRF Protection (Validate on all state-changing methods)
+app.use(validateCSRFToken);
 
 // CSRF Token endpoint (should be called after login to get token)
 app.get('/api/v1/csrf-token', getCSRFToken);
